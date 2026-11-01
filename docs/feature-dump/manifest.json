@@ -1,0 +1,69 @@
+{
+    "createdAtMillis": 1793555527768,
+    "entries": [
+        {
+            "step": 1,
+            "fileName": "01_users_me.json",
+            "endpoint": "GET /users/v1/users/me?sections=identity",
+            "httpStatus": 200,
+            "bytes": 653,
+            "timestampMillis": 1793555526781
+        },
+        {
+            "step": 2,
+            "fileName": "02_installations.json",
+            "endpoint": "GET /iot/v2/equipment/installations?includeGateways=true",
+            "httpStatus": 200,
+            "bytes": 5178,
+            "timestampMillis": 1793555526892
+        },
+        {
+            "step": 3,
+            "fileName": "03_gateways.json",
+            "endpoint": "GET /iot/v2/equipment/gateways/",
+            "httpStatus": 200,
+            "bytes": 597,
+            "timestampMillis": 1793555527022
+        },
+        {
+            "step": 4,
+            "fileName": "04_devices_i0_g0.json",
+            "endpoint": "GET /iot/v2/equipment/installations/{installationId}/gateways/{gatewaySerial}/devices/",
+            "httpStatus": 200,
+            "bytes": 2801,
+            "timestampMillis": 1793555527192
+        },
+        {
+            "step": 5,
+            "fileName": "05_installation_features_i0.json",
+            "endpoint": "GET /iot/v2/features/installations/{installationId}/features",
+            "httpStatus": 200,
+            "bytes": 16,
+            "timestampMillis": 1793555527317
+        },
+        {
+            "step": 6,
+            "fileName": "06_gateway_features_i0_g0.json",
+            "endpoint": "GET /iot/v2/features/installations/{installationId}/gateways/{gatewaySerial}/features",
+            "httpStatus": 200,
+            "bytes": 3773,
+            "timestampMillis": 1793555527453
+        },
+        {
+            "step": 7,
+            "fileName": "07_device_features_i0_g0_d0.json",
+            "endpoint": "GET /iot/v2/features/installations/{installationId}/gateways/{gatewaySerial}/devices/{deviceId}/features",
+            "httpStatus": 200,
+            "bytes": 90886,
+            "timestampMillis": 1793555527625
+        },
+        {
+            "step": 7,
+            "fileName": "07_device_features_i0_g0_d1.json",
+            "endpoint": "GET /iot/v2/features/installations/{installationId}/gateways/{gatewaySerial}/devices/{deviceId}/features",
+            "httpStatus": 200,
+            "bytes": 588,
+            "timestampMillis": 1793555527768
+        }
+    ]
+}

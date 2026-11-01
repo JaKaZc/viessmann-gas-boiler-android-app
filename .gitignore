@@ -1,0 +1,20 @@
+# Secrets and machine-specific config
+local.properties
+*.keystore
+*.jks
+
+# Gradle / IDE
+.gradle/
+build/
+/captures
+.idea/
+*.iml
+.kotlin/
+.DS_Store
+
+# Raw (unredacted) debug dumps must never be committed
+*.zip
+docs/feature-dump/raw/
+
+# Third-party file: link to Viessmann's Postman collection instead of republishing it
+docs/*.postman_collection.json

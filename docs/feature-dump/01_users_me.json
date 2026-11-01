@@ -1,0 +1,45 @@
+{
+    "id": "REDACTED",
+    "loginId": "REDACTED",
+    "userState": "ACTIVE",
+    "gender": "REDACTED",
+    "name": {
+        "firstName": "REDACTED",
+        "familyName": "REDACTED"
+    },
+    "address": {
+        "addressline1": "REDACTED",
+        "addressline2": "REDACTED",
+        "postalCode": "REDACTED",
+        "city": "REDACTED",
+        "street": "REDACTED",
+        "houseNumber": "REDACTED",
+        "countryCode": "si"
+    },
+    "contacts": {
+        "telephone": "REDACTED",
+        "email": "REDACTED"
+    },
+    "properties": [
+        {
+            "name": "REDACTED",
+            "value": "REDACTED"
+        },
+        {
+            "name": "REDACTED",
+            "value": "REDACTED"
+        },
+        {
+            "name": "REDACTED",
+            "value": "REDACTED"
+        },
+        {
+            "name": "REDACTED",
+            "value": "REDACTED"
+        }
+    ],
+    "isCeo": false,
+    "languageCode": "en",
+    "locale": "en-si",
+    "isLite": false
+}

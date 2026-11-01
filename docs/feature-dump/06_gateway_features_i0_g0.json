@@ -1,0 +1,105 @@
+{
+    "data": [
+        {
+            "feature": "gateway.devices",
+            "gatewayId": "SERIAL_1",
+            "timestamp": "2026-10-31T15:23:53.565Z",
+            "isEnabled": true,
+            "isReady": true,
+            "apiVersion": 1,
+            "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/ID_2/gateways/SERIAL_1/features/gateway.devices",
+            "properties": {
+                "devices": {
+                    "type": "DeviceList",
+                    "value": [
+                        {
+                            "id": "0",
+                            "fingerprint": "0041_tcu;SERIAL_2;37.501.2140.101;37.7006.200.6020",
+                            "modelId": "E3_Vitodens_100_0421_1",
+                            "modelVersion": "tWUFBd-9I0ZuEnMGyXeyApkZZw0",
+                            "name": "E3_Vitodens_100_0421",
+                            "type": "heating",
+                            "roles": [
+                                "capability:backup;0037_HBMU_VD",
+                                "capability:consumptionReport;electric",
+                                "capability:consumptionReport;thermal",
+                                "capability:monetization;AdvancedReport",
+                                "capability:monetization;DhwSavingsCalculator",
+                                "capability:productionReport;electric",
+                                "capability:productionReport;thermal",
+                                "capability:service;AdvancedReport",
+                                "capability:service;DhwSavingsCalculator",
+                                "interface:building",
+                                "interface:burner",
+                                "interface:circuit;heating",
+                                "interface:combustion",
+                                "interface:dateTime",
+                                "interface:domesticHotWater",
+                                "interface:heating",
+                                "interface:messages",
+                                "interface:outsideTemperature",
+                                "interface:sensors;pressure",
+                                "interface:solar",
+                                "interface:system",
+                                "interface:telemetryControlUnit",
+                                "interface:thermal",
+                                "interface:zigbeeActivation",
+                                "type:E3",
+                                "type:boiler",
+                                "type:brand;Viessmann",
+                                "type:businessDomain;heating",
+                                "type:dhw;integrated",
+                                "type:gatewayConfiguration",
+                                "type:heating;integrated",
+                                "type:product;Vitodens_100",
+                                "type:productFamily;Vitodens"
+                            ],
+                            "status": "online"
+                        },
+                        {
+                            "id": "TCU",
+                            "fingerprint": "tcu:41;33.524.8001;41.504.2244.48",
+                            "modelId": "E3_TCU41_x04",
+                            "modelVersion": "7M4G6kVvrdgDL9rmdgBtQj5nkYY",
+                            "name": "E3_TCU41_x04",
+                            "type": "tcu",
+                            "roles": [
+                                "capability:coordinator;zigbee",
+                                "capability:lanOne",
+                                "capability:lanTwo",
+                                "capability:src",
+                                "capability:zigbeeCoordinator",
+                                "interface:system",
+                                "interface:telemetryControlUnit;capability",
+                                "interface:zigbee",
+                                "type:E3",
+                                "type:coordinator;zigbee",
+                                "type:gateway;TCU100",
+                                "type:product;TCU100"
+                            ],
+                            "status": "online"
+                        }
+                    ]
+                }
+            },
+            "commands": {}
+        },
+        {
+            "feature": "gateway.wifi",
+            "gatewayId": "SERIAL_1",
+            "timestamp": "2026-11-01T15:50:14.496Z",
+            "isEnabled": true,
+            "isReady": true,
+            "apiVersion": 1,
+            "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/ID_2/gateways/SERIAL_1/features/gateway.wifi",
+            "properties": {
+                "strength": {
+                    "type": "number",
+                    "value": -37,
+                    "unit": ""
+                }
+            },
+            "commands": {}
+        }
+    ]
+}

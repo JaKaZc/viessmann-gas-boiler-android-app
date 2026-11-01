@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ViGasBoiler</string>
+
+    <string name="login_intro">Sign in with your ViCare account. The app uses the official Viessmann API with your own developer client.</string>
+    <string name="login_button">Sign in with Viessmann</string>
+    <string name="login_session_expired">Your session expired. Please sign in again.</string>
+    <string name="login_client_missing">No client ID configured. Set viessmann.clientId in local.properties and rebuild.</string>
+    <string name="login_failed">Sign-in failed: %1$s</string>
+    <string name="login_cancelled">Sign-in was cancelled or the browser did not return to the app.</string>
+    <string name="sign_out">Sign out</string>
+
+    <string name="discovery_title">Discovery</string>
+    <string name="discovery_intro">Reads your account, installations, gateways, devices and all their features once, and stores the raw responses on this phone. Each run costs about 8 API calls.</string>
+    <string name="discovery_run">Run discovery</string>
+    <string name="discovery_export">Export debug dump</string>
+    <string name="discovery_redact">Mask IDs, serial numbers and personal data in the export</string>
+    <string name="discovery_last_run">Last run: %1$s</string>
+    <string name="discovery_skipped">Not run again: a discovery is already running or finished less than a minute ago.</string>
+    <string name="discovery_entry_header">Step %1$d · HTTP %2$s · %3$d bytes</string>
+
+    <string name="error_forbidden_basic_plan">Not available in the Basic plan (403).</string>
+    <string name="error_rate_limited">Rate limit reached (429). Discovery stopped to protect your API budget.</string>
+</resources>

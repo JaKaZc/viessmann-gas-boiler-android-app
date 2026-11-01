@@ -1,0 +1,21 @@
+{
+    "data": [
+        {
+            "feature": "tcu.features.wirelessRemoteController",
+            "gatewayId": "SERIAL_1",
+            "deviceId": "TCU",
+            "timestamp": "2026-10-31T15:23:58.076Z",
+            "isEnabled": true,
+            "isReady": true,
+            "apiVersion": 1,
+            "uri": "https://api.viessmann-climatesolutions.com/iot/v2/features/installations/ID_2/gateways/SERIAL_1/devices/TCU/features/tcu.features.wirelessRemoteController",
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "value": true
+                }
+            },
+            "commands": {}
+        }
+    ]
+}
