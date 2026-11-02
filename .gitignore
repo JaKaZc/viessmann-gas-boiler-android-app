@@ -18,3 +18,5 @@ docs/feature-dump/raw/
 
 # Third-party file: link to Viessmann's Postman collection instead of republishing it
 docs/*.postman_collection.json
+# Firebase project config, per developer
+google-services.json

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The normal widget background with a warm glow behind the burner while it runs. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/widget_background" />
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.86"
+                android:centerY="0.42"
+                android:gradientRadius="75%"
+                android:startColor="@color/widget_burning_glow"
+                android:endColor="#00000000" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</layer-list>

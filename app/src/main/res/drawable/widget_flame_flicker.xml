@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Burning flame for the widget: the body flickers and sways from its base, the core flickers
+     faster, the glow pulses. Played by the indeterminate ProgressBar in layout/widget_burner_on.xml,
+     because widgets cannot run app animations. -->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="24dp"
+            android:height="24dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+            <path
+                android:name="glow"
+                android:pathData="M12,14m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0">
+                <aapt:attr name="android:fillColor">
+                    <gradient
+                        android:type="radial"
+                        android:centerX="12"
+                        android:centerY="14"
+                        android:gradientRadius="10"
+                        android:startColor="@color/widget_flame_glow"
+                        android:endColor="#00000000" />
+                </aapt:attr>
+            </path>
+            <group
+                android:name="body"
+                android:pivotX="12"
+                android:pivotY="20">
+                <path
+                    android:fillColor="@color/widget_flame"
+                    android:pathData="M12,2C12,2 6,9 6,14a6,6 0,0 0,12 0C18,10 15,7 14,5C13.5,8 12.5,9 11,9.5C12,7 12,4 12,2z" />
+                <group
+                    android:name="core"
+                    android:pivotX="12"
+                    android:pivotY="19">
+                    <path
+                        android:fillColor="@color/widget_flame_core"
+                        android:pathData="M12,11C12,11 9.2,14.2 9.2,16.3a2.8,2.8 0,0 0,5.6 0C14.8,14.6 13.2,13 12,11z" />
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="body">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator android:duration="380" android:propertyName="scaleY" android:repeatCount="infinite" android:repeatMode="reverse" android:valueFrom="0.9" android:valueTo="1.08" android:interpolator="@android:interpolator/fast_out_slow_in" />
+                <objectAnimator android:duration="380" android:propertyName="scaleX" android:repeatCount="infinite" android:repeatMode="reverse" android:valueFrom="1.02" android:valueTo="0.94" android:interpolator="@android:interpolator/fast_out_slow_in" />
+                <objectAnimator android:duration="620" android:propertyName="rotation" android:repeatCount="infinite" android:repeatMode="reverse" android:valueFrom="-5" android:valueTo="5" android:interpolator="@android:interpolator/fast_out_slow_in" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="core">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:duration="270" android:propertyName="scaleY" android:repeatCount="infinite" android:repeatMode="reverse" android:valueFrom="0.8" android:valueTo="1.15" android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+    <target android:name="glow">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:duration="900" android:propertyName="fillAlpha" android:repeatCount="infinite" android:repeatMode="reverse" android:valueFrom="0.35" android:valueTo="1" />
+        </aapt:attr>
+    </target>
+</animated-vector>

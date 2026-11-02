@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Live countdown to the next background refresh; the launcher ticks it every second. -->
+<Chronometer xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_countdown"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical|start"
+    android:fontFeatureSettings="tnum"
+    android:singleLine="true"
+    android:textColor="@color/widget_text_variant"
+    android:textSize="12sp"
+    android:textStyle="bold" />

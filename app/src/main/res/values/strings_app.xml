@@ -9,7 +9,6 @@
     <string name="back">Back</string>
 
     <!-- Notices -->
-    <string name="notice_too_soon">Refreshed less than a minute ago. Try again in %1$d s.</string>
     <string name="notice_refresh_failed">Refresh failed: %1$s</string>
     <string name="notice_no_device">No heating device found. Run discovery under More.</string>
     <string name="notice_not_executable">This setting cannot be changed (not executable).</string>
@@ -161,6 +160,16 @@
     <string name="stats_starts_per_hour_value">%1$s starts per hour</string>
     <string name="stats_last_month">Last month %1$s</string>
     <string name="stats_last_year">Last year %1$s</string>
+    <string name="stats_burner_daily">Burner per day</string>
+    <string name="stats_burner_daily_empty">Daily hours and starts appear from the second day the app has stored readings (every refresh, also in the background).</string>
+    <string name="stats_burner_daily_note">The boiler counts whole operating hours, so daily hours are rounded to the hour. A day is shown once the app has a reading from the day before.</string>
+    <string name="stats_yesterday">Yesterday</string>
+    <plurals name="stats_starts_count">
+        <item quantity="one">%1$s start</item>
+        <item quantity="other">%1$s starts</item>
+    </plurals>
+    <string name="stats_burner_avg7">Average of the last 7 days</string>
+    <string name="stats_burner_avg7_value">%1$s · %2$s starts</string>
     <string name="stats_outside">Outside temperature, 30 days</string>
     <string name="stats_outside_today">Today</string>
     <string name="stats_outside_avg7">7-day average</string>
@@ -236,7 +245,6 @@
 
     <!-- Settings -->
     <string name="set_show_dhw">Show hot-water (DHW) features</string>
-    <string name="set_dynamic_color">Use wallpaper colours</string>
     <string name="set_show_dhw_hint">Hot water comes from a separate system; DHW features are hidden by default.</string>
     <string name="set_interval">Background refresh every %1$d min</string>
     <string name="set_retention">Keep history for %1$d days</string>
@@ -249,9 +257,26 @@
     <string name="set_save">Save</string>
 
     <string name="set_section_display">Display</string>
+    <string name="set_theme">Theme</string>
+    <string name="set_add_widget">Add widget to home screen</string>
+    <string name="set_theme_system">Phone</string>
+    <string name="set_theme_light">Light</string>
+    <string name="set_theme_dark">Dark</string>
     <string name="set_section_refresh">Refresh and history</string>
     <string name="set_section_energy">Energy</string>
     <string name="set_section_data">Data</string>
+    <string name="set_section_privacy">Privacy</string>
+    <string name="set_analytics">Share anonymous usage statistics</string>
+    <string name="analytics_title">Help improve ViGasBoiler</string>
+    <string name="analytics_intro">May the app send anonymous usage statistics? They show which screens and settings are used and where errors happen.</string>
+    <string name="analytics_details">Sent via Google Analytics for Firebase: screens opened, setting changes (which setting, not the value), sign-in and error categories, app version, phone model, Android version and country. Never your boiler\'s values, serial numbers, installation, account or location. You can change this anytime in Settings.</string>
+    <string name="analytics_yes">Share</string>
+    <string name="analytics_no">Don\'t share</string>
+    <string name="set_section_client">Viessmann API client</string>
+    <string name="set_client_redirect">Redirect URI</string>
+    <string name="set_client_change">Change client ID</string>
+    <string name="set_client_change_title">Change client ID?</string>
+    <string name="set_client_change_text">You will be signed out and the setup wizard opens, so you can enter a different client ID and sign in again. Your history stays on this phone.</string>
     <!-- History -->
     <string name="hist_24h">24 h</string>
     <string name="hist_7d">7 days</string>
@@ -279,4 +304,131 @@
         <item quantity="one">%1$d status message, no action needed</item>
         <item quantity="other">%1$d status messages, no action needed</item>
     </plurals>
+
+    <!-- Home-screen widget -->
+    <string name="widget_description">Room temperature, burner and boiler status at a glance</string>
+    <string name="widget_signed_out">Open ViGasBoiler to sign in</string>
+    <string name="widget_no_data">No data yet. Open the app once.</string>
+    <string name="widget_outside_short">Out %1$s</string>
+    <string name="widget_off">Off</string>
+    <string name="widget_supply">Supply</string>
+    <string name="widget_pressure">Pressure</string>
+    <string name="widget_fault">Fault %1$s</string>
+    <string name="widget_updated">Updated %1$s · next in</string>
+    <string name="widget_stale">Not updated since %1$s · next in</string>
+    <string name="widget_refreshing">Refreshing…</string>
+    <string name="widget_refresh">Refresh</string>
+
+    <!-- Heating check -->
+    <string name="check_title">Heating check</string>
+    <string name="check_more_sub_ready">Rate your settings with the last week of data</string>
+    <plurals name="check_more_sub_waiting">
+        <item quantity="one">Ready in %1$d day: collecting data</item>
+        <item quantity="other">Ready in %1$d days: collecting data</item>
+    </plurals>
+    <string name="check_intro">Looks at the last 7 days of your boiler\'s data together with your settings, rates how well they fit your house and suggests improvements.</string>
+    <string name="check_period">%1$s – %2$s · %3$d snapshots</string>
+    <string name="check_looks_at">What the check looks at</string>
+    <string name="check_looks_burner">Burner starts and power</string>
+    <string name="check_looks_comfort">Room temperature against your targets</string>
+    <string name="check_looks_efficiency">Supply temperatures, night setback, mild days and gas use</string>
+    <string name="check_looks_system">System pressure and data quality</string>
+    <string name="check_disclaimer">Suggestions are rules of thumb for gas condensing boilers. Change one setting at a time and run the check again after a few days.</string>
+    <string name="check_start">Start check</string>
+    <string name="check_next">Next</string>
+    <string name="check_back">Back</string>
+    <string name="check_done">Done</string>
+    <string name="check_running">Analysing the last week…</string>
+    <string name="check_step">%1$d of %2$d</string>
+    <string name="check_waiting_title">Collecting data</string>
+    <string name="check_waiting_days">%1$d of %2$d days</string>
+    <string name="check_waiting_text">The check needs a full week of history for reliable suggestions. The app stores a snapshot on every refresh, also in the background, so just keep it installed. Ready around %1$s.</string>
+    <string name="check_waiting_hint">A day counts when it has at least %1$d snapshots. If days are missing, allow ViGasBoiler to run unrestricted in the battery settings.</string>
+
+    <string name="check_section_burner">Burner</string>
+    <string name="check_section_comfort">Comfort</string>
+    <string name="check_section_efficiency">Efficiency</string>
+    <string name="check_section_system">System and data</string>
+    <string name="check_section_empty">Not enough data for this part yet.</string>
+    <string name="check_rating_good">Good</string>
+    <string name="check_rating_tip">Tip</string>
+    <string name="check_rating_warning">Check this</string>
+    <string name="check_rating_info">Info</string>
+    <string name="check_suggestion">Suggestion</string>
+
+    <string name="check_cycling_title">Burner starts</string>
+    <string name="check_cycling_value">%1$s starts per burner hour · %2$s starts and %3$s h a day</string>
+    <string name="check_cycling_good">The burner runs in long, calm cycles. That is easy on the boiler and efficient.</string>
+    <string name="check_cycling_bad">The burner switches on and off often (short cycling). That wears the burner and wastes gas.</string>
+    <string name="check_cycling_suggest">Usually helps: lower the heating curve a little so the burner runs longer at low power, keep the night setback small, and keep most radiator valves open.</string>
+
+    <string name="check_modulation_title">Burner power</string>
+    <string name="check_modulation_value">Average %1$s %% while running · %2$s %% of the time near the minimum</string>
+    <string name="check_modulation_good">The boiler adapts its power to the demand.</string>
+    <string name="check_modulation_low">The boiler mostly runs at its lowest power: the house needs less heat than the boiler\'s minimum output, which causes frequent starts.</string>
+    <string name="check_modulation_suggest">Lower supply temperatures (a lower heating curve) let it run longer and start less often.</string>
+
+    <string name="check_room_title">Room temperature</string>
+    <string name="check_room_below">%1$s° below target on average</string>
+    <string name="check_room_above">%1$s° above target on average</string>
+    <string name="check_room_on">On target on average</string>
+    <string name="check_room_split">Below 5 °C outside: %1$s · above: %2$s</string>
+    <string name="check_room_good">The rooms reach the temperature you set: the heating curve fits your house.</string>
+    <string name="check_room_cold">The rooms stay cooler than set: the supply temperature is too low for your house.</string>
+    <string name="check_room_warm">The rooms get warmer than set. Each degree less saves roughly 6 %% gas.</string>
+    <string name="check_room_slope">The difference depends on the outside temperature, so the slope (steepness of the curve) is the right setting.</string>
+    <string name="check_room_shift">The difference is about the same at all outside temperatures, so the shift is the right setting.</string>
+    <string name="check_room_curve_slope">Heating curve slope %1$s → %2$s. Change in small steps and check again after a day or two.</string>
+    <string name="check_room_curve_shift">Heating curve shift %1$s → %2$s K. Change in small steps and check again after a day or two.</string>
+    <string name="check_room_none">No room temperature sensor: the check cannot compare the rooms with your targets.</string>
+    <string name="check_open_heating">Open heating settings</string>
+
+    <string name="check_comfort_title">Comfort program</string>
+    <string name="check_comfort_text">Comfort (%1$s°) is lower than Normal (%2$s°). Comfort is usually the warmest program; check that this is intended.</string>
+
+    <string name="check_setback_title">Night setback</string>
+    <string name="check_setback_value">Normal %1$s° · Reduced %2$s°</string>
+    <string name="check_setback_share">Reduced active %1$s %% of the time</string>
+    <string name="check_setback_good">A moderate setback of %1$s°: saves gas at night without a long warm-up.</string>
+    <string name="check_setback_none">Reduced is (almost) the same as Normal, so nothing is saved at night. Reduced 2–3° below Normal usually saves several percent of gas.</string>
+    <string name="check_setback_large">A setback of %1$s° is large: warming the house up again in the morning costs a lot of gas. 2–3° is usually the better balance with a condensing boiler.</string>
+
+    <string name="check_supply_title">Condensing</string>
+    <string name="check_supply_value">Average supply %1$s °C while the burner runs (max %2$s °C)</string>
+    <string name="check_supply_good">Low supply temperatures: the boiler condenses and also uses the heat in the exhaust.</string>
+    <string name="check_supply_mid">Supply temperatures of 50–60 °C limit condensing. If the rooms stay warm enough, a slightly lower heating curve improves efficiency.</string>
+    <string name="check_supply_high">Above 60 °C the boiler hardly condenses. Lower the heating curve or the maximum supply temperature if the rooms stay warm enough.</string>
+
+    <string name="check_mild_title">Mild days</string>
+    <string name="check_mild_value">%1$s %% of the week at 16 °C or more outside · burner on %2$s %% of that time</string>
+    <string name="check_mild_good">The heating stays off when it is mild outside.</string>
+    <string name="check_mild_bad">The heating still runs when it is mild outside. Standby (summer) mode on warm days, or a lower curve shift, avoids heating you don\'t need.</string>
+
+    <string name="check_pressure_title">System pressure</string>
+    <string name="check_pressure_value">%1$s – %2$s bar</string>
+    <string name="check_pressure_good">Stable pressure within your limits.</string>
+    <string name="check_pressure_drop">The pressure dropped by %1$s bar this week. A slow drop can mean air in the system or a small leak; watch it and refill below %2$s bar.</string>
+    <string name="check_pressure_out">The pressure left your limits (%1$s – %2$s bar). Check the system: too low a pressure stops the boiler.</string>
+
+    <string name="check_gas_title">Gas use</string>
+    <string name="check_gas_value">%1$s m³ in 7 days</string>
+    <string name="check_gas_degree">%1$s m³ per degree day</string>
+    <string name="check_gas_text">Per degree day compares weeks with different weather: lower is better. Run the check again after changing a setting to see the effect.</string>
+
+    <string name="check_data_title">Data</string>
+    <string name="check_data_value">%1$s %% of the expected background refreshes · %2$d snapshots</string>
+    <string name="check_data_good">Enough data for a reliable check.</string>
+    <string name="check_data_bad">Many background refreshes were missed, most likely by battery saving. Allow ViGasBoiler to run unrestricted for more precise results.</string>
+    <string name="check_battery">Battery settings</string>
+
+    <string name="check_summary_title">Summary</string>
+    <string name="check_summary_counts">Good %1$d · Tips %2$d · To check %3$d</string>
+    <string name="check_summary_all_good">Your settings fit your house well. Nothing to change right now.</string>
+    <string name="check_summary_todo">Worth a look</string>
+    <string name="check_summary_again">Run the check again a few days after changing something to see the effect.</string>
+
+    <string name="check_ready_title">Your heating check is ready</string>
+    <string name="check_ready_text">A week of data is collected. See how well your settings fit your house and get suggestions for improvements.</string>
+    <string name="check_ready_run">Run check</string>
+    <string name="check_ready_later">Later</string>
 </resources>

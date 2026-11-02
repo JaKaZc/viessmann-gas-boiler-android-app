@@ -9,3 +9,5 @@
 -keep class com.google.crypto.tink.proto.** { *; }
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn javax.annotation.**
+# Glance creates ActionCallback classes by reflection (actionRunCallback<T>()).
+-keep class * implements androidx.glance.appwidget.action.ActionCallback { <init>(); }

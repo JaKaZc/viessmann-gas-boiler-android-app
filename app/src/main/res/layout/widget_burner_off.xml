@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Burner off: empty ring and a still, grey flame. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:importantForAccessibility="noHideDescendants">
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:max="100"
+        android:maxWidth="200dp"
+        android:maxHeight="200dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:progress="0"
+        android:progressDrawable="@drawable/widget_modulation_ring" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="13dp"
+        android:contentDescription="@null"
+        android:src="@drawable/widget_flame_off" />
+</FrameLayout>

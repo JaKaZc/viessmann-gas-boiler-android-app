@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget background colours (light; dark in values-night). Most text and icon colours are in
+     widget/BoilerWidget.kt (WidgetColors). -->
+<resources>
+    <color name="widget_bg_start">#FFD8E6FF</color>
+    <color name="widget_bg_end">#FFC7F0EE</color>
+    <color name="widget_tile">#99FFFFFF</color>
+    <color name="widget_flame">#FFF06A1A</color>
+    <color name="widget_flame_core">#FFFFC94D</color>
+    <color name="widget_flame_glow">#99F06A1A</color>
+    <color name="widget_burning_glow">#59F27A2E</color>
+    <color name="widget_ring_track">#2600285C</color>
+    <color name="widget_flame_off">#FF8A9AB0</color>
+    <color name="widget_chip_ok">#241E8E3E</color>
+    <color name="widget_chip_error">#24D32F2F</color>
+    <color name="widget_text_variant">#FF3B5578</color>
+</resources>

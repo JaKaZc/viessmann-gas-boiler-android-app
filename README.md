@@ -50,7 +50,7 @@ sent. The new value shows immediately and is confirmed by re-reading the boiler.
 
 **Phone**
 
-- Android 9 (API 28) or newer. The app is sideloaded; it is not on Google Play.
+- Android 9 (API 28) or newer. The app is not on Google Play yet; install the APK you build.
 
 **To build**
 
@@ -61,32 +61,32 @@ sent. The new value shows immediately and is confirmed by re-reading the boiler.
 
 ## 1. Create an API client on the developer portal
 
+Every user registers their own API client; the app's setup wizard walks through these steps on
+first start and has buttons to open the portal and copy the redirect URI.
+
 1. Sign in at <https://developer.viessmann-climatesolutions.com> with your ViCare account.
 2. Open **Clients** → **Add client** and fill in:
    - **Name:** anything, e.g. `ViGasBoiler`.
    - **Google reCAPTCHA:** **off**. A mobile app cannot solve it.
-   - **Redirect URI:** `si.vicare.customapp://oauth2redirect`
+   - **Redirect URI:** `com.vigasboiler.app://oauth2redirect`
 3. Save, then copy the **Client ID**. There is no client secret: the app is a public client and
    signs in with OAuth 2.0 Authorization Code + PKCE.
 
 The redirect URI must match **exactly**, including the two slashes. The single-slash form
-(`si.vicare.customapp:/oauth2redirect`, common in other OAuth apps) does not work: after login
-Viessmann's server treats it as a path and shows a 404 page. A newly saved redirect URI can take
-a few minutes before the login server accepts it.
+(`com.vigasboiler.app:/oauth2redirect`, common in other OAuth apps) does not work: after login
+Viessmann's server treats it as a path and shows a 404 page. A newly saved client or redirect URI
+can take a few minutes before the login server accepts it.
 
 ## 2. Configure your build
 
-Create or edit `local.properties` in the project root. This file is git-ignored; never commit it.
+Nothing to configure: the client ID is entered in the app, not built in. Android Studio creates
+`local.properties` with `sdk.dir` when you open the project (git-ignored; never commit it).
 
-```properties
-sdk.dir=/path/to/Android/sdk
-
-viessmann.clientId=<your client id>
-viessmann.redirectUri=si.vicare.customapp://oauth2redirect
-```
-
-Android Studio fills in `sdk.dir` automatically when you open the project. Without
-`viessmann.clientId` the app still builds, but the sign-in button stays disabled.
+**Optional: analytics.** To receive anonymous usage statistics in your own Firebase project,
+register an Android app with package `com.vigasboiler.app` in the
+[Firebase console](https://console.firebase.google.com), download its `google-services.json` and
+put it at `app/src/live/google-services.json` (git-ignored). Without the file the app builds and
+runs without analytics. Debug builds never send analytics.
 
 ## 3. Build and install
 
@@ -120,14 +120,29 @@ Run the unit tests with:
 
 | Flavor | Package | What it does |
 |---|---|---|
-| `live` | `si.vicare.customapp` | The real app: sign-in and the Viessmann API. |
-| `mock` | `si.vicare.customapp.mock` | No sign-in. Every API call is answered from the masked sample data in `docs/feature-dump/`; commands change an in-memory copy. Installs next to the live app as "ViGasBoiler Mock". For UI work without touching a real boiler or spending API calls. |
+| `live` | `com.vigasboiler.app` | The real app: setup wizard, sign-in and the Viessmann API. |
+| `mock` | `com.vigasboiler.app.mock` | No sign-in. Every API call is answered from the masked sample data in `docs/feature-dump/`; commands change an in-memory copy. Installs next to the live app as "ViGasBoiler Mock". For UI work without touching a real boiler or spending API calls. |
 
 ## 4. First start
 
-1. Open the app and tap **Sign in with Viessmann**; log in with your ViCare account.
-2. The app finds your installation, gateway and heating device and loads all features.
-3. Allow notifications if you want fault, pressure and gateway alerts.
+The setup wizard guides through everything:
+
+1. **What you need:** boiler in the ViCare app, ViCare account, free developer account.
+2. **Developer account:** opens the portal; sign in with your ViCare account.
+3. **Register this app:** the client settings above, with the redirect URI to copy.
+4. **Client ID:** paste the client ID from the portal (stored on the phone only).
+5. **Sign in** with your ViCare account. If it fails, the wizard lists the usual causes.
+
+Then the app finds your installation, gateway and heating device and loads all features. Allow
+notifications if you want fault, pressure and gateway alerts.
+
+After the first sign-in, release builds with a Firebase config ask once whether anonymous usage
+statistics may be sent; nothing is sent before the user agrees.
+
+**Settings → Display → Theme** follows the phone by default or can be set to light or dark.
+
+**Settings → Viessmann API client** shows the client ID and redirect URI in use; **Change client
+ID** signs out and reopens the wizard. Signing out (More → Sign out) keeps the client ID.
 
 Under **More → Discovery and debug dump** you can export all raw API responses as a zip. With
 **Mask IDs, serial numbers and personal data** checked (default), installation IDs, serials and
@@ -141,8 +156,9 @@ account for the rest of the window, **including the official ViCare app**. The a
 - Every call is counted on the phone; the overview shows what is left in both windows.
 - A refresh costs 2 calls (device + gateway features). A settings change costs 2 (command + one
   re-read of only that feature), plus one delayed re-read if the boiler had not applied it yet.
-- Foreground refresh on opening the app and on pull-down, at most once per minute. Background
-  refresh every 30 minutes by default (15–120 in Settings): about 96 calls a day.
+- Refresh on opening the app (at most once a minute), on pull-down and with the widget's
+  refresh button (any time). Background refresh every 30 minutes by default (15–120 in
+  Settings): about 96 calls a day. The home-screen widget shows a live countdown to it.
 - At 80 % of either window, automatic and background refreshes pause; only manual refreshes and
   setting changes still go through. Nothing is ever sent that would exceed a limit.
 - After an HTTP 429 the app reads when the limit resets and sends nothing until then.
@@ -150,7 +166,15 @@ account for the rest of the window, **including the official ViCare app**. The a
 
 ## Privacy and security
 
-- Everything stays on your phone; the app talks only to Viessmann's servers.
+- Your boiler data, history, tokens and client ID stay on your phone; the app talks to
+  Viessmann's servers and, only if you agree, to Google Analytics for Firebase.
+- **Analytics is opt-in.** Asked once after the first sign-in, changeable in Settings → Privacy;
+  turning it off also deletes statistics not yet sent. Collected: screens opened, which setting
+  was changed (feature and command name, not the value) and whether it worked, sign-in method and
+  error categories, theme choice, plus Firebase's app version, phone model, Android version and
+  country. Never collected: boiler values, installation or gateway IDs, serial numbers, the
+  client ID, account or location data, the advertising ID or the Android ID (the ad-ID
+  permissions are removed from the app). Debug builds and the mock flavor send nothing.
 - OAuth tokens are encrypted (Tink AES-256-GCM, key in the Android Keystore). App backup is
   disabled, so tokens and history are never copied off the device.
 - Debug builds log only the request method, a path with IDs masked, and the status code; release
@@ -170,14 +194,15 @@ account for the rest of the window, **including the official ViCare app**. The a
 ## Project layout
 
 ```
-app/src/main/java/si/vicare/customapp/
-  auth/       OAuth login (AppAuth), token storage and refresh
+app/src/main/java/com/vigasboiler/app/
+  auth/       OAuth login (AppAuth), client ID, token storage and refresh
   feature/    feature model and parser, command validation, schedule rules, repository
   ratelimit/  API call budget and 429 handling
   history/    on-phone history, consumption periods, CSV export
   messages/   error-database lookup
   work/       background refresh and notifications
-  ui/         Jetpack Compose screens and theme
+  analytics/  opt-in usage statistics (Firebase in src/live, no-op in src/mock)
+  ui/         Jetpack Compose screens (setup wizard in ui/login) and theme
 app/src/live, app/src/mock   flavor-specific setup (real API vs. sample data)
 docs/feature-dump/           masked sample API responses (tests and mock flavor)
 docs/step2-decisions.md      design decisions taken from the real data
@@ -187,7 +212,8 @@ The [Viessmann API Postman collection](https://documentation.viessmann.com) docu
 endpoints used.
 
 Built with Kotlin, Jetpack Compose and Material 3, Hilt, Retrofit/OkHttp, kotlinx.serialization,
-Room, DataStore, WorkManager, AppAuth, Tink and Vico.
+Room, DataStore, WorkManager, AppAuth, AndroidX Browser (Auth Tab), Tink, Vico and Firebase
+Analytics.
 
 ## License
 

@@ -2,10 +2,53 @@
 <resources>
     <string name="app_name">ViGasBoiler</string>
 
-    <string name="login_intro">Sign in with your ViCare account. The app uses the official Viessmann API with your own developer client.</string>
+    <!-- Setup wizard. <b> markup is rendered with AnnotatedString.fromHtml. -->
+    <string name="setup_tagline">Monitor and control your Viessmann gas boiler with the official Viessmann API.</string>
+    <string name="setup_need_title">What you need</string>
+    <string name="setup_need_boiler">A Viessmann boiler connected to the internet and set up in the ViCare app</string>
+    <string name="setup_need_account">Your ViCare account (e-mail and password)</string>
+    <string name="setup_need_portal">A free Viessmann developer account. Setting it up takes about 5 minutes.</string>
+    <string name="setup_own_client">Every user registers their own API client. Your data goes straight from Viessmann to this phone.</string>
+    <string name="setup_start">Start setup</string>
+    <string name="setup_have_client">I already have a client ID</string>
+    <string name="setup_step_of">Step %1$d of %2$d</string>
+    <string name="setup_next">Next</string>
+    <string name="setup_back">Back</string>
+    <string name="setup_open_portal">Open developer portal</string>
+
+    <string name="setup_account_title">Create a developer account</string>
+    <string name="setup_account_1">Open the Viessmann developer portal.</string>
+    <string name="setup_account_2"><![CDATA[Sign in with your <b>ViCare account</b>: the same e-mail and password as in the ViCare app.]]></string>
+    <string name="setup_account_3"><![CDATA[Accept the terms of use if asked. The free <b>Basic</b> plan is enough.]]></string>
+    <string name="setup_account_note">Come back to this app when you are signed in to the portal.</string>
+
+    <string name="setup_client_title">Register this app</string>
+    <string name="setup_client_1"><![CDATA[In the portal, open <b>Clients</b> and add a new client.]]></string>
+    <string name="setup_client_2"><![CDATA[Name: anything, for example <b>ViGasBoiler</b>.]]></string>
+    <string name="setup_client_3"><![CDATA[Google reCAPTCHA: <b>off</b>.]]></string>
+    <string name="setup_client_4"><![CDATA[Redirect URI: copy it <b>exactly</b>, with two slashes after the colon:]]></string>
+    <string name="setup_client_5"><![CDATA[Save the client. The portal shows its <b>Client ID</b>: copy it.]]></string>
+    <string name="setup_copy">Copy</string>
+    <string name="setup_copied">Copied</string>
+
+    <string name="setup_id_title">Enter your client ID</string>
+    <string name="setup_id_intro">Paste the client ID of the client you just created.</string>
+    <string name="setup_id_label">Client ID</string>
+    <string name="setup_id_paste">Paste</string>
+    <string name="setup_id_invalid">This does not look like a client ID. It is a long string of letters and digits without spaces.</string>
+    <string name="setup_id_note">A new client can take a few minutes before Viessmann accepts sign-ins with it.</string>
+
+    <string name="setup_signin_title">Sign in</string>
+    <string name="setup_signin_intro">Sign in with your ViCare account. Viessmann then asks you to allow access for your client.</string>
+    <string name="setup_client_in_use">Client ID</string>
+    <string name="setup_change">Change</string>
+    <string name="setup_trouble_title">Did the sign-in not work?</string>
+    <string name="setup_trouble_redirect"><![CDATA[<b>Invalid redirection URI</b> or <b>page not found</b> after logging in: the redirect URI of your client must be exactly %1$s]]></string>
+    <string name="setup_trouble_client"><![CDATA[<b>Invalid client</b>: check the client ID, or wait a few minutes after creating the client.]]></string>
+    <string name="setup_trouble_captcha"><![CDATA[A <b>reCAPTCHA</b> that never finishes: turn reCAPTCHA off for your client in the portal.]]></string>
+
     <string name="login_button">Sign in with Viessmann</string>
     <string name="login_session_expired">Your session expired. Please sign in again.</string>
-    <string name="login_client_missing">No client ID configured. Set viessmann.clientId in local.properties and rebuild.</string>
     <string name="login_failed">Sign-in failed: %1$s</string>
     <string name="login_cancelled">Sign-in was cancelled or the browser did not return to the app.</string>
     <string name="sign_out">Sign out</string>

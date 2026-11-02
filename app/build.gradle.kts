@@ -1,5 +1,3 @@
-import java.net.URI
-import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -8,33 +6,26 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
 }
 
-// Client ID and redirect URI live in local.properties (git-ignored) and reach the app via BuildConfig.
-val localProps = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) file.inputStream().use { load(it) }
-}
-val viessmannClientId: String = localProps.getProperty("viessmann.clientId", "").trim()
-val viessmannRedirectUri: String =
-    localProps.getProperty("viessmann.redirectUri", "si.vicare.customapp://oauth2redirect").trim()
-val viessmannRedirectScheme: String = URI(viessmannRedirectUri).scheme
-    ?: error("viessmann.redirectUri must contain a scheme, e.g. si.vicare.customapp://oauth2redirect")
+// Each user registers their own API client on the Viessmann developer portal and enters the
+// client ID in the app's setup wizard. The redirect URI is fixed: the package name as scheme.
+fun redirectUri(scheme: String) = "$scheme://oauth2redirect"
 
 android {
-    namespace = "si.vicare.customapp"
+    namespace = "com.vigasboiler.app"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "si.vicare.customapp"
+        applicationId = "com.vigasboiler.app"
         minSdk = 28
         targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
 
-        buildConfigField("String", "VIESSMANN_CLIENT_ID", "\"$viessmannClientId\"")
-        buildConfigField("String", "VIESSMANN_REDIRECT_URI", "\"$viessmannRedirectUri\"")
-        manifestPlaceholders["appAuthRedirectScheme"] = viessmannRedirectScheme
+        manifestPlaceholders["appAuthRedirectScheme"] = "com.vigasboiler.app"
+        buildConfigField("String", "REDIRECT_URI", "\"${redirectUri("com.vigasboiler.app")}\"")
     }
 
     flavorDimensions += "api"
@@ -48,7 +39,8 @@ android {
             applicationIdSuffix = ".mock"
             versionNameSuffix = "-mock"
             // Must not claim the live app's OAuth redirect scheme.
-            manifestPlaceholders["appAuthRedirectScheme"] = "si.vicare.customapp.mock"
+            manifestPlaceholders["appAuthRedirectScheme"] = "com.vigasboiler.app.mock"
+            buildConfigField("String", "REDIRECT_URI", "\"${redirectUri("com.vigasboiler.app.mock")}\"")
         }
     }
 
@@ -87,6 +79,12 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+// Firebase config: app/src/live/google-services.json (git-ignored). Without it the app builds and
+// runs without analytics; the mock flavor never has one.
+googleServices {
+    missingGoogleServicesStrategy = com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy.IGNORE
+}
+
 // Inputs for the opt-in ExportLocalDumpTest (redacting a dump on the dev machine).
 tasks.withType<Test>().configureEach {
     providers.gradleProperty("rawDumpDir").orNull?.let { systemProperty("rawDumpDir", it) }
@@ -117,8 +115,15 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.vico.compose.m3)
+    implementation(libs.glance.appwidget)
     implementation(libs.tink.android)
     implementation(libs.appauth)
+    // Auth Tab (Chrome) for sign-in; AppAuth alone brings an old version without it.
+    implementation(libs.androidx.browser)
+
+    // Firebase Analytics only in the live flavor; the mock flavor has a no-op implementation.
+    "liveImplementation"(platform(libs.firebase.bom))
+    "liveImplementation"(libs.firebase.analytics)
 
     implementation(libs.retrofit)
     implementation(libs.okhttp)

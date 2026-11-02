@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Burner running: modulation ring (set with setProgressBar) around the flickering flame. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:importantForAccessibility="noHideDescendants">
+
+    <ProgressBar
+        android:id="@+id/widget_ring"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:max="100"
+        android:maxWidth="200dp"
+        android:maxHeight="200dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:progressDrawable="@drawable/widget_modulation_ring" />
+
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="9dp"
+        android:indeterminate="true"
+        android:indeterminateDrawable="@drawable/widget_flame_flicker"
+        android:indeterminateOnly="true" />
+</FrameLayout>

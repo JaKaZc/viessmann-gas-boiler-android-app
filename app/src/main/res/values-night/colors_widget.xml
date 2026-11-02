@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_bg_start">#FF1F4F9E</color>
+    <color name="widget_bg_end">#FF00504B</color>
+    <color name="widget_tile">#26FFFFFF</color>
+    <color name="widget_flame">#FFFF9F5A</color>
+    <color name="widget_flame_core">#FFFFE08A</color>
+    <color name="widget_flame_glow">#99FF8A3D</color>
+    <color name="widget_burning_glow">#66FF7A2E</color>
+    <color name="widget_ring_track">#33FFFFFF</color>
+    <color name="widget_flame_off">#FF8FA3BD</color>
+    <color name="widget_chip_ok">#337EDB8F</color>
+    <color name="widget_chip_error">#33FFB4AB</color>
+    <color name="widget_text_variant">#FFB7CCE6</color>
+</resources>
