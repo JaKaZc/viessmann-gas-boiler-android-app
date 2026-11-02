@@ -9,6 +9,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -95,6 +96,8 @@ data class ExtraColors(
     val success: Color,
     val hot: Color,
     val cold: Color,
+    /** One accent per bottom-bar tab (Overview, Heating, Statistics, Messages, More). */
+    val tabs: List<Color>,
 )
 
 private val LightExtra = ExtraColors(
@@ -104,6 +107,7 @@ private val LightExtra = ExtraColors(
     success = Color(0xFF1E8E3E),
     hot = Color(0xFFF06A1A),
     cold = Color(0xFF0891B2),
+    tabs = listOf(Color(0xFF1F6FEB), Color(0xFFE8590C), Color(0xFF7C4DFF), Color(0xFF0E8A8A), Color(0xFF3F51B5)),
 )
 
 private val DarkExtra = ExtraColors(
@@ -113,14 +117,18 @@ private val DarkExtra = ExtraColors(
     success = Color(0xFF7EDB8F),
     hot = Color(0xFFFF9F5A),
     cold = Color(0xFF67D4EA),
+    tabs = listOf(Color(0xFF8AB8FF), Color(0xFFFFA270), Color(0xFFB9A6FF), Color(0xFF5ED8CE), Color(0xFF9FA8DA)),
 )
 
 val LocalExtraColors = staticCompositionLocalOf { LightExtra }
 
+/** Accent of the tab being shown; section bars and card icons pick it up (see AppShell). */
+val LocalAccent = compositionLocalOf { Color.Unspecified }
+
 private val AppShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),
     small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(20.dp),
+    medium = RoundedCornerShape(22.dp),
     large = RoundedCornerShape(28.dp),
     extraLarge = RoundedCornerShape(32.dp),
 )
@@ -139,7 +147,7 @@ private val AppTypography = Base.copy(
 )
 
 /** Small uppercase section caption. */
-val SectionLabelStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.2.sp)
+val SectionLabelStyle = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.1.sp)
 
 /** The app's own neutral palette, following the system's light or dark setting. */
 @Composable
@@ -155,4 +163,7 @@ fun ViessmannTheme(
 
 object AppColors {
     val extra: ExtraColors @Composable get() = LocalExtraColors.current
+
+    /** The current tab's accent, or primary outside the tab shell. */
+    val accent: Color @Composable get() = LocalAccent.current.takeIf { it != Color.Unspecified } ?: MaterialTheme.colorScheme.primary
 }

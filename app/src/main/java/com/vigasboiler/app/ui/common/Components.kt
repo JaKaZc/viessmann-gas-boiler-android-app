@@ -5,7 +5,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.clickable
@@ -57,25 +61,41 @@ import com.vigasboiler.app.ui.theme.SectionLabelStyle
 fun prettify(token: String): String =
     token.replace(Regex("([a-z])([A-Z])"), "$1 $2").lowercase().replaceFirstChar { it.uppercase() }
 
-/** Small uppercase caption above a group of cards. */
+/** Caption above a group of cards: a short accent bar and the title in sentence case. */
 @Composable
 fun SectionHeader(text: String, modifier: Modifier = Modifier) {
-    Text(
-        text.uppercase(),
-        modifier.padding(start = 4.dp, top = 8.dp, bottom = 2.dp),
-        style = SectionLabelStyle,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    Row(modifier.padding(start = 4.dp, top = 10.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Box(Modifier.size(width = 4.dp, height = 16.dp).clip(RoundedCornerShape(2.dp)).background(AppColors.accent))
+        Text(
+            text.lowercase().replaceFirstChar { it.uppercase() },
+            style = SectionLabelStyle,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
 }
 
+/** Shrinks a pressed element a little and springs back: tactile feedback for tappable cards. */
+@Composable
+fun Modifier.pressBounce(interaction: MutableInteractionSource): Modifier {
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) 0.97f else 1f, spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium), label = "press")
+    return graphicsLayer { scaleX = scale; scaleY = scale }
+}
+
+/** Content card: hairline border, generous padding; tappable cards bounce when pressed. */
 @Composable
 fun AppCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
     val colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+    val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
     val inner: @Composable ColumnScope.() -> Unit = {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
     }
-    if (onClick != null) Card(onClick, modifier.fillMaxWidth(), colors = colors, shape = MaterialTheme.shapes.medium, content = inner)
-    else Card(modifier.fillMaxWidth(), colors = colors, shape = MaterialTheme.shapes.medium, content = inner)
+    if (onClick != null) {
+        val interaction = remember { MutableInteractionSource() }
+        Card(onClick, modifier.fillMaxWidth().pressBounce(interaction), colors = colors, shape = MaterialTheme.shapes.medium, border = border, interactionSource = interaction, content = inner)
+    } else {
+        Card(modifier.fillMaxWidth(), colors = colors, shape = MaterialTheme.shapes.medium, border = border, content = inner)
+    }
 }
 
 /** A card with an optional title row (icon + title). */
@@ -89,7 +109,7 @@ fun SectionCard(
     AppCard(modifier) {
         if (title != null) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (icon != null) Icon(painterResource(icon), null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+                if (icon != null) Icon(painterResource(icon), null, Modifier.size(20.dp), tint = AppColors.accent)
                 Text(title, style = MaterialTheme.typography.titleMedium)
             }
         }
@@ -134,10 +154,12 @@ fun ValueTile(
             if (sub != null) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+    val border = if (warn) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
     if (onClick != null) {
-        Card(onClick, modifier.fillMaxHeight(), colors = colors, shape = MaterialTheme.shapes.medium) { content() }
+        val interaction = remember { MutableInteractionSource() }
+        Card(onClick, modifier.fillMaxHeight().pressBounce(interaction), colors = colors, shape = MaterialTheme.shapes.medium, border = border, interactionSource = interaction) { content() }
     } else {
-        Card(modifier.fillMaxHeight(), colors = colors, shape = MaterialTheme.shapes.medium) { content() }
+        Card(modifier.fillMaxHeight(), colors = colors, shape = MaterialTheme.shapes.medium, border = border) { content() }
     }
 }
 
@@ -192,7 +214,7 @@ fun NavRow(title: String, @DrawableRes icon: Int, subtitle: String? = null, onCl
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        IconBadge(icon, MaterialTheme.colorScheme.primary)
+        IconBadge(icon, AppColors.accent)
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleMedium)
             if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

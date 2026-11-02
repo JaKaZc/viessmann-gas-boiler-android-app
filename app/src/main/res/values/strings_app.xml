@@ -6,6 +6,18 @@
     <string name="nav_stats">Statistics</string>
     <string name="nav_messages">Messages</string>
     <string name="nav_more">More</string>
+    <string name="header_morning">Good morning</string>
+    <string name="header_afternoon">Good afternoon</string>
+    <string name="header_evening">Good evening</string>
+    <string name="header_updated">updated %1$s</string>
+    <string name="header_program">%1$s program</string>
+    <string name="header_stats">Charts and totals from your history</string>
+    <string name="header_no_faults">No faults</string>
+    <plurals name="header_faults">
+        <item quantity="one">%1$d fault to look at</item>
+        <item quantity="other">%1$d faults to look at</item>
+    </plurals>
+    <string name="header_more">Boiler, app and account</string>
     <string name="back">Back</string>
 
     <!-- Notices -->
@@ -29,7 +41,7 @@
 
     <!-- Dashboard -->
     <string name="dash_no_data">No data yet. Pull down to refresh.</string>
-    <string name="dash_last_refresh">Updated %1$s · pull down to refresh</string>
+    <string name="dash_last_refresh">Pull down to refresh</string>
     <string name="dash_outside">Outside</string>
     <string name="dash_supply_boiler">Boiler supply</string>
     <string name="dash_supply_circuit">Circuit supply</string>

@@ -1,5 +1,17 @@
 package com.vigasboiler.app.ui.dashboard
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import com.vigasboiler.app.ui.common.pressBounce
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -117,8 +129,31 @@ private fun Hero(s: FeatureSnapshot, onClick: () -> Unit) {
 
     // Blue into teal: the one colourful surface on the screen.
     val gradient = Brush.linearGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.tertiaryContainer))
-    Surface(onClick = onClick, shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-        Column(Modifier.background(gradient).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    // While the burner runs a warm glow breathes behind its corner of the card.
+    val hot = extra.hot
+    val glow = if (burnerOn) {
+        val t = rememberInfiniteTransition(label = "heroGlow")
+        t.animateFloat(0.10f, 0.26f, infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "glow").value
+    } else 0f
+    val interaction = remember { MutableInteractionSource() }
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.pressBounce(interaction),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        interactionSource = interaction,
+    ) {
+        Column(
+            Modifier.background(gradient)
+                .drawBehind {
+                    if (glow > 0f) drawCircle(
+                        Brush.radialGradient(listOf(hot.copy(alpha = glow), Color.Transparent), center = Offset(size.width * 0.2f, size.height * 0.62f), radius = size.width * 0.6f),
+                        radius = size.width * 0.6f, center = Offset(size.width * 0.2f, size.height * 0.62f),
+                    )
+                }
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
             Row(verticalAlignment = Alignment.Top) {
                 // Room temperature is the headline; outside is supporting information.
                 Column(Modifier.weight(1f)) {
@@ -162,7 +197,7 @@ private fun Hero(s: FeatureSnapshot, onClick: () -> Unit) {
                 }
             }
             Text(
-                stringResource(R.string.dash_last_refresh, formatTime(s.fetchedAtMillis)),
+                stringResource(R.string.dash_last_refresh),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
