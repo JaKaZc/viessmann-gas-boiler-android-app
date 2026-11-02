@@ -62,7 +62,10 @@ import com.vigasboiler.app.ui.explorer.ExplorerScreen
 import com.vigasboiler.app.ui.explorer.FeatureDetailScreen
 import com.vigasboiler.app.ui.heating.HeatingScreen
 import com.vigasboiler.app.ui.heating.ScheduleEditorScreen
-import com.vigasboiler.app.ui.history.HistoryScreen
+import com.vigasboiler.app.history.ChartKind
+import com.vigasboiler.app.history.ChartRange
+import com.vigasboiler.app.ui.charts.ChartDetailScreen
+import com.vigasboiler.app.ui.charts.title as chartTitle
 import com.vigasboiler.app.ui.messages.MessagesScreen
 import com.vigasboiler.app.ui.messages.StatusMessagesScreen
 import com.vigasboiler.app.ui.more.MoreScreen
@@ -200,7 +203,10 @@ private fun Screen(route: String, vm: AppViewModel, navigate: Navigate, pop: () 
     when {
         route == Tab.Dashboard.route -> DashboardScreen(vm, navigate)
         route == Tab.Heating.route -> HeatingScreen(vm, navigate)
-        route == Tab.Stats.route -> StatisticsScreen(vm)
+        route == Tab.Stats.route -> StatisticsScreen(vm, navigate)
+        route.startsWith("chart:") -> route.removePrefix("chart:").split('|').let { parts ->
+            ChartDetailScreen(ChartKind.valueOf(parts[0]), parts.getOrNull(1)?.let(ChartRange::valueOf) ?: ChartRange.Day)
+        }
         route == Tab.Messages.route -> MessagesScreen(vm, navigate)
         route == "status-messages" -> StatusMessagesScreen(vm)
         route == Tab.More.route -> MoreScreen(navigate, onSignOut, vm.checkReadiness.collectAsStateWithLifecycle().value)
@@ -212,7 +218,6 @@ private fun Screen(route: String, vm: AppViewModel, navigate: Navigate, pop: () 
         }
         route == "settings" -> SettingsScreen(vm)
         route == "device" -> DeviceInfoScreen(vm)
-        route == "history" -> HistoryScreen()
         route == "discovery" -> DiscoveryScreen(onSignOut = onSignOut, showTopBar = false)
     }
 }
@@ -221,6 +226,7 @@ private fun Screen(route: String, vm: AppViewModel, navigate: Navigate, pop: () 
 private fun titleFor(route: String): String = when {
     route.startsWith("feature:") -> route.removePrefix("feature:")
     route.startsWith("schedule:") -> stringResource(R.string.heat_schedule)
+    route.startsWith("chart:") -> stringResource(chartTitle(ChartKind.valueOf(route.removePrefix("chart:").substringBefore('|'))))
     else -> stringResource(
         when (route) {
             "dashboard" -> R.string.nav_dashboard
@@ -231,7 +237,6 @@ private fun titleFor(route: String): String = when {
             "explorer" -> R.string.more_explorer
             "settings" -> R.string.more_settings
             "device" -> R.string.more_device
-            "history" -> R.string.more_history
             "discovery" -> R.string.more_discovery
             "status-messages" -> R.string.msg_info_title
             "heating-check" -> R.string.check_title

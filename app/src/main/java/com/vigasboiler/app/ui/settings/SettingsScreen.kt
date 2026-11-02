@@ -64,6 +64,7 @@ import com.vigasboiler.app.settings.ThemeMode
 import com.vigasboiler.app.ui.AppViewModel
 import com.vigasboiler.app.ui.common.SectionCard
 import com.vigasboiler.app.widget.BoilerWidget
+import com.vigasboiler.app.widget.StatsWidgetReceiver
 import com.vigasboiler.app.ui.common.formatNumber
 import com.vigasboiler.app.work.BackgroundRefresh
 
@@ -138,6 +139,9 @@ fun SettingsScreen(vm: AppViewModel, settingsVm: SettingsViewModel = hiltViewMod
                 if (BoilerWidget.canPin(context)) {
                     OutlinedButton(onClick = { BoilerWidget.requestPin(context) }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.set_add_widget))
+                    }
+                    OutlinedButton(onClick = { BoilerWidget.requestPin(context, StatsWidgetReceiver::class.java) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.set_add_stats_widget))
                     }
                 }
                 SwitchRow(stringResource(R.string.set_show_dhw), settings.showDhw) { v -> vm.updateSettings { it.copy(showDhw = v) } }

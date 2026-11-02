@@ -39,6 +39,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import com.vigasboiler.app.R
 import com.vigasboiler.app.feature.DeviceMessages
 import com.vigasboiler.app.feature.FeatureSnapshot
+import com.vigasboiler.app.history.ChartKind
+import com.vigasboiler.app.history.ChartRange
 import com.vigasboiler.app.feature.gatewayStatus
 import com.vigasboiler.app.feature.MessageLevel
 import com.vigasboiler.app.feature.PropertyValue
@@ -82,12 +84,13 @@ fun DashboardScreen(vm: AppViewModel, navigate: Navigate) {
             if (s == null) {
                 item { Text(stringResource(R.string.dash_no_data), Modifier.padding(16.dp)) }
             } else {
-                item { Box(Modifier.appear(0)) { Hero(s) } }
+                // Tiles open their chart: the quickest way from a number to its history.
+                item { Box(Modifier.appear(0)) { Hero(s) { navigate(chart(ChartKind.Temperatures)) } } }
                 item { Box(Modifier.appear(1)) { Banners(s) { navigate("messages") } } }
                 item { SectionHeader(stringResource(R.string.dash_section_supply), Modifier.appear(2)) }
-                item { Box(Modifier.appear(3)) { SupplyTiles(s) } }
+                item { Box(Modifier.appear(3)) { SupplyTiles(s) { navigate(chart(ChartKind.Supply)) } } }
                 item { SectionHeader(stringResource(R.string.dash_section_system), Modifier.appear(4)) }
-                item { Box(Modifier.appear(5)) { SystemTiles(s, settings) } }
+                item { Box(Modifier.appear(5)) { SystemTiles(s, settings, navigate) } }
             }
             item { SectionHeader(stringResource(R.string.dash_budget_title), Modifier.appear(6)) }
             item { Box(Modifier.appear(7)) { BudgetCard(budget) } }
@@ -98,7 +101,7 @@ fun DashboardScreen(vm: AppViewModel, navigate: Navigate) {
 
 /** Outside and room temperature, mode and the two status chips on a warm gradient. */
 @Composable
-private fun Hero(s: FeatureSnapshot) {
+private fun Hero(s: FeatureSnapshot, onClick: () -> Unit) {
     val extra = AppColors.extra
     val outside = s["heating.sensors.temperature.outside"]?.number()
     val room = s["heating.circuits.0.sensors.temperature.room"]?.number()
@@ -114,7 +117,7 @@ private fun Hero(s: FeatureSnapshot) {
 
     // Blue into teal: the one colourful surface on the screen.
     val gradient = Brush.linearGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.tertiaryContainer))
-    Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+    Surface(onClick = onClick, shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Column(Modifier.background(gradient).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(verticalAlignment = Alignment.Top) {
                 // Room temperature is the headline; outside is supporting information.
@@ -225,16 +228,16 @@ private fun Banners(s: FeatureSnapshot, onOpen: () -> Unit) {
 }
 
 @Composable
-private fun SupplyTiles(s: FeatureSnapshot) {
+private fun SupplyTiles(s: FeatureSnapshot, onClick: () -> Unit) {
     fun temp(name: String) = s[name]?.let { formatWithUnit(it.number(), it.unit()) } ?: "–"
     Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        ValueTile(stringResource(R.string.dash_supply_boiler), temp("heating.boiler.sensors.temperature.commonSupply"), Modifier.weight(1f), icon = R.drawable.ic_thermometer)
-        ValueTile(stringResource(R.string.dash_supply_circuit), temp("heating.circuits.0.sensors.temperature.supply"), Modifier.weight(1f), icon = R.drawable.ic_thermometer)
+        ValueTile(stringResource(R.string.dash_supply_boiler), temp("heating.boiler.sensors.temperature.commonSupply"), Modifier.weight(1f), icon = R.drawable.ic_thermometer, onClick = onClick)
+        ValueTile(stringResource(R.string.dash_supply_circuit), temp("heating.circuits.0.sensors.temperature.supply"), Modifier.weight(1f), icon = R.drawable.ic_thermometer, onClick = onClick)
     }
 }
 
 @Composable
-private fun SystemTiles(s: FeatureSnapshot, settings: AppSettings) {
+private fun SystemTiles(s: FeatureSnapshot, settings: AppSettings, navigate: Navigate) {
     val pressure = s["heating.sensors.pressure.supply"]?.number()
     val outOfRange = pressure != null && (pressure < settings.pressureMinBar || pressure > settings.pressureMaxBar)
     val modulation = s["heating.burners.0.modulation"]?.number()
@@ -250,6 +253,7 @@ private fun SystemTiles(s: FeatureSnapshot, settings: AppSettings) {
             },
             warn = outOfRange,
             icon = R.drawable.ic_gauge,
+            onClick = { navigate(chart(ChartKind.Pressure)) },
         )
         ValueTile(
             stringResource(R.string.stats_modulation),
@@ -257,9 +261,12 @@ private fun SystemTiles(s: FeatureSnapshot, settings: AppSettings) {
             Modifier.weight(1f),
             sub = s["heating.burners.0.statistics"]?.number("hours")?.let { stringResource(R.string.dash_burner_hours, formatNumber(it, 0)) },
             icon = R.drawable.ic_nav_heating,
+            onClick = { navigate(chart(ChartKind.Modulation)) },
         )
     }
 }
+
+private fun chart(kind: ChartKind) = "chart:${kind.name}|${ChartRange.Day.name}"
 
 @Composable
 fun BudgetCard(budget: RateBudget) {

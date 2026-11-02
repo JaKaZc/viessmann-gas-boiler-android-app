@@ -69,6 +69,7 @@ import com.vigasboiler.app.R
 import com.vigasboiler.app.auth.AuthState
 import com.vigasboiler.app.auth.TokenManager
 import com.vigasboiler.app.feature.FeatureRepository
+import com.vigasboiler.app.history.HistoryRepository
 import com.vigasboiler.app.ratelimit.CallKind
 import com.vigasboiler.app.settings.SettingsRepository
 import com.vigasboiler.app.ui.common.formatNumber
@@ -82,6 +83,7 @@ interface WidgetEntryPoint {
     fun repository(): FeatureRepository
     fun tokenManager(): TokenManager
     fun settings(): SettingsRepository
+    fun history(): HistoryRepository
 }
 
 /** True while a refresh started from the widget button runs. */
@@ -118,15 +120,18 @@ class BoilerWidget : GlanceAppWidget() {
     companion object {
         private val COMPACT = DpSize(110.dp, 50.dp)
 
-        /** Re-renders every placed widget from the current snapshot (no API call). */
-        suspend fun redraw(context: Context) = BoilerWidget().updateAll(context)
+        /** Re-renders every placed widget, overview and statistics, from stored data (no API call). */
+        suspend fun redraw(context: Context) {
+            BoilerWidget().updateAll(context)
+            StatsWidget().updateAll(context)
+        }
 
         /** Whether the launcher can add the widget from inside the app. */
         fun canPin(context: Context): Boolean = AppWidgetManager.getInstance(context).isRequestPinAppWidgetSupported
 
-        /** Asks the launcher to add the widget; it shows its own confirmation. */
-        fun requestPin(context: Context) {
-            AppWidgetManager.getInstance(context).requestPinAppWidget(ComponentName(context, BoilerWidgetReceiver::class.java), null, null)
+        /** Asks the launcher to add a widget ([BoilerWidgetReceiver] or [StatsWidgetReceiver]); it shows its own confirmation. */
+        fun requestPin(context: Context, receiver: Class<*> = BoilerWidgetReceiver::class.java) {
+            AppWidgetManager.getInstance(context).requestPinAppWidget(ComponentName(context, receiver), null, null)
         }
     }
 }
@@ -455,7 +460,7 @@ private fun Label(text: String, size: TextUnit, color: ColorProvider, weight: Fo
  * launcher's light or dark mode. Backgrounds are drawables using colors_widget.xml (values and
  * values-night).
  */
-private object WidgetColors {
+internal object WidgetColors {
     val onBg = ColorProvider(day = Color(0xFF00285C), night = Color(0xFFDCE8FF))
     val onBgVariant = ColorProvider(day = Color(0xFF3B5578), night = Color(0xFFB7CCE6))
     val hot = ColorProvider(day = Color(0xFFE2600F), night = Color(0xFFFF9F5A))

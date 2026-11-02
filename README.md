@@ -21,8 +21,14 @@ reports, so other E3 boilers should work too.
   history.
 - **Messages:** faults (F.) and warnings (A.) with banner and notification; status, service and
   information codes (S., P., I.) listed for reference; code lookup in Viessmann's error database.
-- **History:** every refresh is stored on the phone (temperatures, modulation, burner state …),
-  with 24 h / 7 day / 30 day charts and CSV export.
+- **Charts** (first page of Statistics): room vs target vs outside, supply vs setpoint, modulation,
+  pressure, gas per hour/day and burner running time for 24 h / 7 days / 30 days, with figures and
+  tap-to-read values. Tapping a tile on the Overview opens its chart. Every refresh is stored on the
+  phone; Settings exports it as CSV.
+- **Heating check:** after a week of data, rates burner cycling, comfort, efficiency and the system
+  against your settings and suggests improvements (More → Heating check).
+- **Home-screen widgets:** an overview (room card, burner ring, live countdown to the next refresh)
+  and a statistics grid, both 4×3 so they can be stacked.
 - **All features:** every value and every command the API exposes for your device, with input
   forms generated from the command constraints.
 - **Background refresh and notifications:** every 30 minutes by default; alerts for faults,

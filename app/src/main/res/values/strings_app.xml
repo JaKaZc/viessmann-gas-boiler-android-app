@@ -204,14 +204,12 @@
     <!-- More -->
     <string name="more_device">Device info</string>
     <string name="more_explorer">All features</string>
-    <string name="more_history">History</string>
     <string name="more_settings">Settings</string>
     <string name="more_discovery">Discovery and debug dump</string>
 
     <string name="more_section_boiler">Boiler</string>
     <string name="more_section_app">App</string>
     <string name="more_device_sub">Model, serial numbers, firmware</string>
-    <string name="more_history_sub">Temperatures and burner over time</string>
     <string name="more_explorer_sub">Every value and command the API offers</string>
     <string name="more_settings_sub">Refresh, notifications, display</string>
     <string name="more_discovery_sub">Raw API responses and debug dump</string>
@@ -258,7 +256,8 @@
 
     <string name="set_section_display">Display</string>
     <string name="set_theme">Theme</string>
-    <string name="set_add_widget">Add widget to home screen</string>
+    <string name="set_add_widget">Add overview widget to home screen</string>
+    <string name="set_add_stats_widget">Add statistics widget to home screen</string>
     <string name="set_theme_system">Phone</string>
     <string name="set_theme_light">Light</string>
     <string name="set_theme_dark">Dark</string>
@@ -281,11 +280,6 @@
     <string name="hist_24h">24 h</string>
     <string name="hist_7d">7 days</string>
     <string name="hist_30d">30 days</string>
-    <string name="hist_temperatures">Temperatures (°C)</string>
-    <string name="hist_modulation">Modulation (%)</string>
-    <string name="hist_burner">Burner on (1) / off (0)</string>
-    <string name="hist_empty">No history yet. Snapshots are stored on every refresh.</string>
-    <string name="hist_legend">Outside · boiler supply · circuit supply</string>
 
     <!-- Notifications -->
     <string name="notif_channel_alerts">Boiler alerts</string>
@@ -318,6 +312,36 @@
     <string name="widget_stale">Not updated since %1$s · next in</string>
     <string name="widget_refreshing">Refreshing…</string>
     <string name="widget_refresh">Refresh</string>
+
+    <!-- Statistics widget -->
+    <string name="statsw_name">ViGasBoiler statistics</string>
+    <string name="statsw_description">Gas, heat, electricity, burner and outside statistics</string>
+    <string name="statsw_title">Statistics</string>
+    <string name="statsw_updated">Updated %1$s</string>
+    <string name="statsw_gas_today">Gas today</string>
+    <string name="statsw_gas_7">Gas 7 days</string>
+    <string name="statsw_gas_month">Gas this month</string>
+    <string name="statsw_gas_year">Gas this year</string>
+    <string name="statsw_vs_last_month">%1$s %% vs last month</string>
+    <string name="statsw_burner_today">Burner today</string>
+    <string name="statsw_burner_7">Burner 7 days</string>
+    <string name="statsw_per_day">%1$s / day</string>
+    <string name="statsw_starts">%1$s starts</string>
+    <string name="statsw_starts_per_day">%1$s starts / day</string>
+    <string name="statsw_running">Running today</string>
+    <string name="statsw_modulation_avg">Ø %1$s %% modulation</string>
+    <string name="statsw_heat_today">Heat today</string>
+    <string name="statsw_heat_7">Heat 7 days</string>
+    <string name="statsw_efficiency">Efficiency %1$s %%</string>
+    <string name="statsw_outside_today">Outside today</string>
+    <string name="statsw_avg7">Ø 7 days %1$s</string>
+    <string name="statsw_power_today">Electricity today</string>
+    <string name="statsw_in_7">%1$s in 7 days</string>
+    <string name="statsw_starts_per_hour">Starts per hour</string>
+    <string name="statsw_last_7">burner hour, 7 days</string>
+    <string name="statsw_degree_day">Gas per degree day</string>
+    <string name="statsw_degree_day_sub">last 7 days</string>
+    <string name="statsw_total">Burner total</string>
 
     <!-- Heating check -->
     <string name="check_title">Heating check</string>
@@ -431,4 +455,42 @@
     <string name="check_ready_text">A week of data is collected. See how well your settings fit your house and get suggestions for improvements.</string>
     <string name="check_ready_run">Run check</string>
     <string name="check_ready_later">Later</string>
+
+    <!-- Charts -->
+    <string name="charts_tab">Charts</string>
+    <string name="totals_tab">Totals</string>
+    <string name="charts_empty">Charts fill in as the app stores data on every refresh, also in the background.</string>
+    <string name="charts_open">Tap for details</string>
+    <string name="chart_temperatures">Room and outside</string>
+    <string name="chart_supply">Supply temperature</string>
+    <string name="chart_modulation">Burner modulation</string>
+    <string name="chart_pressure">System pressure</string>
+    <string name="chart_gas">Gas use</string>
+    <string name="chart_burner">Burner running time</string>
+    <string name="series_room">Room</string>
+    <string name="series_target">Target</string>
+    <string name="series_outside">Outside</string>
+    <string name="series_supply">Boiler supply</string>
+    <string name="series_circuit">Circuit supply</string>
+    <string name="series_setpoint">Setpoint</string>
+    <string name="series_modulation">Modulation</string>
+    <string name="series_pressure">Pressure</string>
+    <string name="series_gas_hour">m³ per hour</string>
+    <string name="series_gas_day">m³ per day</string>
+    <string name="series_burner_hour">minutes per hour</string>
+    <string name="series_burner_day">hours per day</string>
+    <string name="chart_stats_line">Now %1$s · %2$s – %3$s · Ø %4$s</string>
+    <string name="chart_stats_modulation">Now %1$s · max %2$s · Ø %3$s while running</string>
+    <string name="chart_stats_total">Total %1$s · max %2$s · Ø %3$s</string>
+    <string name="chart_now">Now</string>
+    <string name="chart_min">Lowest</string>
+    <string name="chart_max">Highest</string>
+    <string name="chart_avg">Average</string>
+    <string name="chart_total">Total</string>
+    <string name="chart_about_temperatures">The room temperature against the target of the active program (dashed) and the outside temperature. Rooms that stay below the dashed line in cold weather point at a heating curve that is too low.</string>
+    <string name="chart_about_supply">The water temperature leaving the boiler against the setpoint from the heating curve (dashed). Lower is more efficient: a condensing boiler condenses best below about 55 °C.</string>
+    <string name="chart_about_modulation">How hard the burner works (share of its maximum power). Long phases at low modulation are efficient; many short peaks mean frequent starts.</string>
+    <string name="chart_about_pressure">Water pressure of the heating system. It moves a little with temperature; a steady drop over days can mean air or a small leak.</string>
+    <string name="chart_about_gas">Gas used for heating, from the boiler\'s daily counter. Compare days with similar outside temperatures to see the effect of a setting change.</string>
+    <string name="chart_about_burner">How long the burner was running. Per day it uses the boiler\'s hour counter (whole hours); for 24 h it is estimated from the burner state at each refresh.</string>
 </resources>

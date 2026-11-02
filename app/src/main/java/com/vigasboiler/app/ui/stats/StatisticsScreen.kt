@@ -50,6 +50,8 @@ import com.vigasboiler.app.history.HistoryRepository
 import com.vigasboiler.app.history.PeriodValue
 import com.vigasboiler.app.settings.AppSettings
 import com.vigasboiler.app.ui.AppViewModel
+import com.vigasboiler.app.ui.Navigate
+import com.vigasboiler.app.ui.charts.ChartsContent
 import com.vigasboiler.app.ui.common.AppCard
 import com.vigasboiler.app.ui.common.appear
 import androidx.compose.foundation.layout.Box
@@ -111,8 +113,21 @@ class StatsViewModel @Inject constructor(history: HistoryRepository) : ViewModel
     }
 }
 
+/** Charts first (the quick look most people want), the counters and comparisons under Totals. */
 @Composable
-fun StatisticsScreen(vm: AppViewModel, stats: StatsViewModel = hiltViewModel()) {
+fun StatisticsScreen(vm: AppViewModel, navigate: Navigate) {
+    var tab by rememberSaveable { mutableIntStateOf(0) }
+    Column(Modifier.fillMaxSize()) {
+        PrimaryTabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.background) {
+            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(stringResource(R.string.charts_tab)) })
+            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(stringResource(R.string.totals_tab)) })
+        }
+        if (tab == 0) ChartsContent(navigate) else StatsTotals(vm)
+    }
+}
+
+@Composable
+private fun StatsTotals(vm: AppViewModel, stats: StatsViewModel = hiltViewModel()) {
     val snapshot by vm.snapshot.collectAsStateWithLifecycle()
     val settings by vm.settings.collectAsStateWithLifecycle()
     val bars by stats.bars.collectAsStateWithLifecycle()

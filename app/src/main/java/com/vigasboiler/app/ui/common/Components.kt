@@ -118,10 +118,13 @@ fun ValueTile(
     warn: Boolean = false,
     @DrawableRes icon: Int? = null,
     accent: Color = MaterialTheme.colorScheme.primary,
+    /** Opens more detail, e.g. the tile's chart. */
+    onClick: (() -> Unit)? = null,
 ) {
     val container = if (warn) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow
+    val colors = CardDefaults.cardColors(containerColor = container)
     // fillMaxHeight: tiles in a Row(Modifier.height(IntrinsicSize.Min)) share the tallest height.
-    Card(modifier.fillMaxHeight(), colors = CardDefaults.cardColors(containerColor = container), shape = MaterialTheme.shapes.medium) {
+    val content: @Composable () -> Unit = {
         Column(Modifier.padding(16.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (icon != null) IconBadge(icon, if (warn) MaterialTheme.colorScheme.error else accent, size = 28)
@@ -130,6 +133,11 @@ fun ValueTile(
             AnimatedValueText(value, MaterialTheme.typography.headlineMedium)
             if (sub != null) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+    }
+    if (onClick != null) {
+        Card(onClick, modifier.fillMaxHeight(), colors = colors, shape = MaterialTheme.shapes.medium) { content() }
+    } else {
+        Card(modifier.fillMaxHeight(), colors = colors, shape = MaterialTheme.shapes.medium) { content() }
     }
 }
 

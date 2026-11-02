@@ -43,8 +43,6 @@ fun MoreScreen(navigate: Navigate, onSignOut: () -> Unit, checkReadiness: Heatin
             RowDivider()
             NavRow(stringResource(R.string.msg_info_title), R.drawable.ic_info, stringResource(R.string.more_status_sub)) { navigate("status-messages") }
             RowDivider()
-            NavRow(stringResource(R.string.more_history), R.drawable.ic_clock, stringResource(R.string.more_history_sub)) { navigate("history") }
-            RowDivider()
             NavRow(stringResource(R.string.more_explorer), R.drawable.ic_list, stringResource(R.string.more_explorer_sub)) { navigate("explorer") }
         }
         SectionHeader(stringResource(R.string.more_section_app))
