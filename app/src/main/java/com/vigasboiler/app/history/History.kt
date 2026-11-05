@@ -9,6 +9,8 @@ import java.time.temporal.IsoFields
 import java.time.temporal.TemporalAdjusters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import com.vigasboiler.app.data.HistoryRow
 import com.vigasboiler.app.data.SeriesEntity
@@ -189,8 +191,10 @@ class HistoryRepository(
     private val dao: SnapshotDao,
     private val settings: SettingsRepository,
     private val clock: () -> Long = System::currentTimeMillis,
-) : SnapshotListener {
+) : SnapshotListener, HistoryStore {
 
+    // A restore can run while a refresh stores its snapshot.
+    private val writeLock = Mutex()
     private val seriesIds = HashMap<Pair<String, String>, Long>()
 
     override suspend fun onSnapshot(previous: FeatureSnapshot?, current: FeatureSnapshot) = record(current)
@@ -198,18 +202,34 @@ class HistoryRepository(
     suspend fun record(snapshot: FeatureSnapshot) {
         val values = HistoryValues.extract(snapshot)
         if (values.isEmpty()) return
+        insert(values.map { TimedValue(snapshot.fetchedAtMillis, it) })
+        dao.deleteBefore(clock() - settings.current().retentionDays * DAY)
+    }
+
+    /** Stores values with their own timestamps (demo mode's generated week). */
+    override suspend fun insert(values: List<TimedValue>) = writeLock.withLock {
         if (seriesIds.isEmpty()) dao.allSeries().forEach { seriesIds[it.feature to it.property] = it.id }
-        val rows = values.map { v ->
+        val rows = values.map { (t, v) ->
             val key = v.feature to v.property
             val id = seriesIds[key] ?: run {
                 dao.insertSeries(SeriesEntity(feature = v.feature, property = v.property, unit = v.unit))
                 // IGNORE returns -1 on conflict, so re-read the id.
                 dao.allSeries().first { it.feature == v.feature && it.property == v.property }.id
             }.also { seriesIds[key] = it }
-            SnapshotValueEntity(id, snapshot.fetchedAtMillis, v.value)
+            SnapshotValueEntity(id, t, v.value)
         }
         dao.insertValues(rows)
-        dao.deleteBefore(clock() - settings.current().retentionDays * DAY)
+    }
+
+    override suspend fun rows(fromMillis: Long, untilMillis: Long): List<HistoryRow> = dao.between(fromMillis, untilMillis)
+
+    override suspend fun oldestMillis(): Long? = dao.oldest()
+
+    /** Deletes the whole history. */
+    suspend fun clear() = writeLock.withLock {
+        dao.deleteAllValues()
+        dao.deleteAllSeries()
+        seriesIds.clear()
     }
 
     fun series(feature: String, property: String, sinceMillis: Long): Flow<List<HistoryRow>> =

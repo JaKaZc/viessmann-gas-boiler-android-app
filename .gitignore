@@ -20,3 +20,9 @@ docs/feature-dump/raw/
 docs/*.postman_collection.json
 # Firebase project config, per developer
 google-services.json
+
+# Play upload key credentials
+keystore.properties
+
+# Play upload bundle (built artifact)
+play-store/*.aab

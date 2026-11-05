@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -12,6 +13,13 @@ plugins {
 // Each user registers their own API client on the Viessmann developer portal and enters the
 // client ID in the app's setup wizard. The redirect URI is fixed: the package name as scheme.
 fun redirectUri(scheme: String) = "$scheme://oauth2redirect"
+
+// Play upload key (git-ignored keystore.properties + upload-keystore.jks). Without it, release
+// builds fall back to the debug key so anyone can build the project.
+val keystoreProps = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
 
 android {
     namespace = "com.vigasboiler.app"
@@ -45,7 +53,19 @@ android {
     }
 
     sourceSets {
-        getByName("mock").assets.srcDir("../docs/feature-dump")
+        // The masked sample installation: answers every call in the mock flavor and in demo mode.
+        getByName("main").assets.srcDir("../docs/feature-dump")
+    }
+
+    signingConfigs {
+        if (keystoreProps.isNotEmpty()) {
+            create("upload") {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -53,8 +73,8 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Personal sideloaded app: sign release with the debug key so `assembleRelease` is installable.
-            signingConfig = signingConfigs.getByName("debug")
+            // Google Play: signed with the upload key; Play App Signing re-signs for distribution.
+            signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
     }
 

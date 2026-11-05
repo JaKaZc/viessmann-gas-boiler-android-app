@@ -27,6 +27,7 @@ import com.vigasboiler.app.auth.ClientIdStore
 import com.vigasboiler.app.auth.LoginResult
 import com.vigasboiler.app.auth.TokenManager
 import com.vigasboiler.app.config.ApiConfig
+import com.vigasboiler.app.demo.DemoSession
 import net.openid.appauth.AuthorizationRequest
 
 data class LoginUiState(
@@ -51,6 +52,7 @@ class LoginViewModel @Inject constructor(
     private val clientIdStore: ClientIdStore,
     private val savedState: SavedStateHandle,
     private val analytics: Analytics,
+    private val demo: DemoSession,
     config: ApiConfig,
 ) : ViewModel() {
 
@@ -67,6 +69,11 @@ class LoginViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { tokenManager.initialize() }
+    }
+
+    fun startDemo() {
+        _ui.update { it.copy(inProgress = true, error = null, cancelled = false) }
+        viewModelScope.launch { demo.start() }
     }
 
     /** Saves a valid client ID (normalized); returns false for input that is not one. */
@@ -130,9 +137,12 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    /** Keeps the client ID: signing in again only needs the ViCare login. */
+    /** Keeps the client ID: signing in again only needs the ViCare login. Ends a demo instead. */
     fun signOut() {
-        viewModelScope.launch { tokenManager.signOut() }
+        viewModelScope.launch {
+            if (demo.active.value) demo.end() else tokenManager.signOut()
+            _ui.update { LoginUiState() }
+        }
     }
 
     private companion object {

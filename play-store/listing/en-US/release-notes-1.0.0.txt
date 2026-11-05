@@ -1,0 +1,12 @@
+<en-US>
+First release.
+• Live overview of your Viessmann gas boiler
+• Heating mode, programs, schedule, holidays and heating curve
+• Charts for 24 h, 7 and 30 days, statistics and CSV export
+• Heating check with suggestions after a week of data
+• Overview and statistics home-screen widgets
+• Fault, pressure and gateway alerts
+• Light and dark theme
+• History and settings return after a reinstall
+• Demo mode with sample data, no account needed
+</en-US>

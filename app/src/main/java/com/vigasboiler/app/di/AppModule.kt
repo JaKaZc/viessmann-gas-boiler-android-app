@@ -25,12 +25,14 @@ import com.vigasboiler.app.auth.TokenManager
 import com.vigasboiler.app.config.ApiConfig
 import com.vigasboiler.app.data.AppDatabase
 import com.vigasboiler.app.data.RoomApiCallLog
+import com.vigasboiler.app.demo.DemoSession
 import com.vigasboiler.app.discovery.DiscoveryRepository
 import com.vigasboiler.app.discovery.DumpExporter
 import com.vigasboiler.app.feature.DataStoreSelectionStore
 import com.vigasboiler.app.feature.FeatureRepository
 import com.vigasboiler.app.feature.SelectionStore
 import com.vigasboiler.app.feature.SnapshotListener
+import com.vigasboiler.app.history.HistoryBackup
 import com.vigasboiler.app.history.HistoryRepository
 import com.vigasboiler.app.messages.ErrorLookupRepository
 import com.vigasboiler.app.net.ViessmannApi
@@ -126,6 +128,19 @@ object AppModule {
         DiscoveryRepository(api, File(context.filesDir, "debug-dump"))
 
     @Provides @Singleton
+    fun demoSession(
+        @ApplicationContext context: Context,
+        tokenManager: TokenManager,
+        features: FeatureRepository,
+        history: HistoryRepository,
+        backup: HistoryBackup,
+        settings: SettingsRepository,
+    ): DemoSession = DemoSession(
+        context, tokenManager, features, history, backup, settings,
+        sampleDirs = listOf(File(context.filesDir, "debug-dump"), File(context.cacheDir, "error-database")),
+    )
+
+    @Provides @Singleton
     fun dumpExporter(@ApplicationContext context: Context): DumpExporter =
         DumpExporter(File(context.filesDir, "debug-dump"), File(context.cacheDir, "exports"))
 }
@@ -136,6 +151,19 @@ object HistoryModule {
     @Provides @Singleton
     fun historyRepository(db: AppDatabase, settings: SettingsRepository): HistoryRepository =
         HistoryRepository(db.snapshotDao(), settings)
+
+    @Provides @Singleton
+    fun historyBackup(@ApplicationContext context: Context, history: HistoryRepository, settings: SettingsRepository, tokenManager: TokenManager): HistoryBackup =
+        HistoryBackup(
+            dir = File(context.filesDir, "history-backup"),
+            restoredMarker = File(context.noBackupFilesDir, "history-restored"),
+            store = history,
+            retentionDays = { settings.current().retentionDays },
+            isDemo = tokenManager::isDemo,
+        )
+
+    @Provides @IntoSet
+    fun historyBackupListener(backup: HistoryBackup): SnapshotListener = backup
 
     /** Every successful refresh (foreground or background) is stored as a history snapshot. */
     @Provides @IntoSet

@@ -36,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -146,6 +147,29 @@ fun AppHeader(title: String, subtitle: String?, onBack: (() -> Unit)?) {
                     Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
+        }
+    }
+}
+
+/** Shown under the header while the demo runs: what the data is, and the way out. */
+@Composable
+fun DemoBanner(onExit: () -> Unit) {
+    Surface(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 6.dp),
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        shape = RoundedCornerShape(14.dp),
+    ) {
+        Row(Modifier.padding(start = 14.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(painterResource(R.drawable.ic_info), contentDescription = null, Modifier.size(18.dp))
+            Text(
+                stringResource(R.string.demo_banner),
+                Modifier.weight(1f).padding(horizontal = 10.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            TextButton(onClick = onExit) { Text(stringResource(R.string.demo_exit), fontWeight = FontWeight.SemiBold) }
         }
     }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 9 to 11; the same files as data_extraction_rules.xml, encrypted backups only. -->
+<full-backup-content>
+    <include domain="file" path="history-backup/" requireFlags="clientSideEncryption" />
+    <include domain="file" path="datastore/settings.preferences_pb" requireFlags="clientSideEncryption" />
+    <include domain="file" path="datastore/client.preferences_pb" requireFlags="clientSideEncryption" />
+</full-backup-content>

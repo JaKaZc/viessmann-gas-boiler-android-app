@@ -90,6 +90,22 @@ interface SnapshotDao {
 
     @Query("DELETE FROM snapshot_value WHERE timestampMillis < :before")
     suspend fun deleteBefore(before: Long)
+
+    @Query(
+        "SELECT v.timestampMillis AS timestampMillis, s.feature AS feature, s.property AS property, v.value AS value, s.unit AS unit " +
+            "FROM snapshot_value v JOIN series s ON s.id = v.seriesId " +
+            "WHERE v.timestampMillis >= :from AND v.timestampMillis < :until ORDER BY v.timestampMillis, s.feature, s.property",
+    )
+    suspend fun between(from: Long, until: Long): List<HistoryRow>
+
+    @Query("SELECT MIN(timestampMillis) FROM snapshot_value")
+    suspend fun oldest(): Long?
+
+    @Query("DELETE FROM snapshot_value")
+    suspend fun deleteAllValues()
+
+    @Query("DELETE FROM series")
+    suspend fun deleteAllSeries()
 }
 
 @Database(entities = [ApiCallEntity::class, SeriesEntity::class, SnapshotValueEntity::class], version = 1, exportSchema = true)

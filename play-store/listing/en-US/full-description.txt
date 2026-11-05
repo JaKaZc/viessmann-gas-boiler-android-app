@@ -1,0 +1,55 @@
+ViGasBoiler shows what your Viessmann gas condensing boiler is doing right now, and lets you change its heating settings safely, straight from your phone.
+
+It uses the official Viessmann API with your own free developer access, so your data goes directly between your phone and Viessmann. No extra account, no cloud service in between.
+
+★ YOUR BOILER AT A GLANCE
+• Room temperature against its target, and the outside temperature
+• Animated burner indicator with modulation
+• Boiler and circuit supply temperatures, system pressure
+• Gateway status, Wi-Fi signal and how much of your API budget is left
+
+★ HEATING SETTINGS, CONFIRMED BEFORE SENDING
+• Operating mode and room temperature per program (reduced, normal, comfort)
+• Weekly schedule on a 24-hour dial: drag the dots to change times, drag a period to move it
+• Holiday programs
+• Heating curve chart with a live preview while you change slope and shift
+• Every change is checked against the boiler's limits and confirmed in a dialog first
+
+★ CHARTS AND STATISTICS
+• Room vs target vs outside, supply vs setpoint, modulation and pressure
+• Gas use per hour and per day, burner running time and starts
+• 24 hours, 7 days or 30 days, with tap-to-read values
+• Gas, electricity and heat counters with month and year comparison, efficiency
+• Export your history as CSV
+
+★ HEATING CHECK
+After a week of data, the heating check rates burner cycling, comfort and efficiency against your settings and suggests concrete improvements.
+
+★ HOME-SCREEN WIDGETS
+• Overview widget with the room card, burner ring and a live countdown to the next refresh
+• Statistics widget with twelve key figures
+• Both 4×3, so you can stack them
+
+★ MESSAGES AND ALERTS
+• Faults and warnings with a banner and notification
+• Alerts for low or high pressure, gateway offline and an almost-used-up API budget
+• Code lookup in Viessmann's error database
+
+★ MADE TO BE SAFE
+• Background refresh every 30 minutes (adjustable), within the API's daily limits, so your ViCare app keeps working
+• Settings are never changed in the background, only after your confirmation
+• Sign-in tokens encrypted on the device, never backed up
+• History and settings return after a reinstall or on a new phone, through Android's backup to your own Google account
+• Light and dark theme, or follow your phone
+• Optional, opt-in anonymous usage statistics; no ads
+
+WHAT YOU NEED
+• A Viessmann boiler connected to the internet (built-in Wi-Fi or Vitoconnect) and set up in the ViCare app
+• A free account on the Viessmann developer portal (sign in with your ViCare account)
+The setup wizard walks you through creating your API client in a few minutes, with the redirect address ready to copy.
+
+Want to look around first? Tap "Try with sample data" on the first screen: a sample boiler with a week of history, no account needed.
+
+Developed and tested with a Vitodens 100-W on the E3 platform. Screens are built from whatever features your boiler reports, so other E3 boilers should work too; everything the API exposes is reachable under More → All features.
+
+ViGasBoiler is an independent app and is not affiliated with, endorsed or sponsored by Viessmann. "Viessmann", "Vitodens" and "ViCare" are trademarks of their respective owners. Changing heating settings affects a real appliance; use at your own risk.

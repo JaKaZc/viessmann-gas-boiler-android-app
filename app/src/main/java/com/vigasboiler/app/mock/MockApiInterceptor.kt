@@ -15,13 +15,14 @@ import okio.Buffer
 import com.vigasboiler.app.feature.CommandEffects
 
 /**
- * Answers every API request from the redacted dump (docs/feature-dump, packaged as assets).
- * Commands are applied to an in-memory copy of the device features, so the UI reacts as it
- * would against the real boiler. Nothing reaches the network.
+ * Answers every API request from the redacted dump (docs/feature-dump, packaged as assets): the
+ * whole mock flavor, and demo mode in the live app. Commands are applied to an in-memory copy of
+ * the device features, so the UI reacts as it would against the real boiler. Nothing reaches the
+ * network.
  */
 class MockApiInterceptor(private val assets: AssetManager) : Interceptor {
 
-    private val features = MockFeatureStore(asset("07_device_features_i0_g0_d0.json"))
+    private val features by lazy { MockFeatureStore(asset("07_device_features_i0_g0_d0.json")) }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -53,10 +54,12 @@ class MockApiInterceptor(private val assets: AssetManager) : Interceptor {
             .build()
     }
 
-    private fun asset(name: String): String = assets.open(name).bufferedReader().use { it.readText() }
+    private fun asset(name: String): String = readAsset(assets, name)
 
     companion object {
         private const val LATENCY_MILLIS = 300L
+
+        fun readAsset(assets: AssetManager, name: String): String = assets.open(name).bufferedReader().use { it.readText() }
         private val JSON = "application/json".toMediaType()
 
         /** `…/iot/v2/features/…/devices/0/features/<feature>/commands/<command>` → (feature, command). */

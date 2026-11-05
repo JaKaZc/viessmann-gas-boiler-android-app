@@ -13,12 +13,13 @@
         </intent>
     </queries>
 
-    <!-- allowBackup=false: tokens are bound to this device's Keystore and must not be backed up. -->
+    <!-- Backs up only what the rules name: never tokens, their key or the device selection.
+         dataExtractionRules is for Android 12+, fullBackupContent for 9 to 11. -->
     <application
         android:name=".ViessmannApp"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="false"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"

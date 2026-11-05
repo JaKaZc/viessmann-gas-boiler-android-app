@@ -26,6 +26,21 @@ class TokenManagerTest {
     }
 
     @Test
+    fun `demo tokens switch demo mode on until sign-out, and survive a restart`() = runTest {
+        val storage = FakeTokenStorage()
+        val manager = TokenManager(storage, CountingRefreshClient()) { now }
+        manager.onSignedIn(Tokens.DEMO)
+        assertEquals(true, manager.demo.value)
+        assertEquals(true, manager.isDemo())
+        assertEquals(true, TokenManager(storage, CountingRefreshClient()) { now }.isDemo())
+        manager.signOut()
+        assertEquals(false, manager.demo.value)
+        assertEquals(false, manager.isDemo())
+        manager.onSignedIn(validTokens())
+        assertEquals(false, manager.demo.value)
+    }
+
+    @Test
     fun `valid token is returned without refreshing`() = runTest {
         val refresh = CountingRefreshClient()
         val manager = TokenManager(FakeTokenStorage(validTokens()), refresh) { now }

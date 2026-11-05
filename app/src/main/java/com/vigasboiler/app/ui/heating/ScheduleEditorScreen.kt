@@ -55,12 +55,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vigasboiler.app.R
 import com.vigasboiler.app.feature.Day
 import com.vigasboiler.app.feature.PropertyValue
 import com.vigasboiler.app.feature.Schedule
+import com.vigasboiler.app.feature.ScheduleDrag
 import com.vigasboiler.app.feature.ScheduleEntry
 import com.vigasboiler.app.feature.ScheduleRules
 import com.vigasboiler.app.ui.AppViewModel
@@ -103,15 +105,37 @@ fun ScheduleEditorScreen(vm: AppViewModel, featureName: String, initialDay: Day?
             ) { day ->
                 val entries = schedule.day(day)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    DayDial(entries, showNow = day == today, modifier = Modifier.fillMaxWidth(0.78f).align(Alignment.CenterHorizontally)) {
+                    DayDial(
+                        entries,
+                        showNow = day == today,
+                        resolution = rules.resolutionMinutes ?: 1,
+                        onChange = { schedule = schedule.withDay(day, it) },
+                        onTap = { editing = day to it },
+                        modifier = Modifier.fillMaxWidth(0.92f).align(Alignment.CenterHorizontally),
+                    ) { grab ->
+                        val held = grab?.let { entries.getOrNull(it.index) }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(prettify(day.name.lowercase()), style = MaterialTheme.typography.headlineSmall)
-                            Text(
-                                stringResource(R.string.sched_periods, entries.size, rules.maxEntries ?: entries.size),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            if (held != null) {
+                                Text("${held.start} – ${held.end}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                                Text(prettify(held.mode), style = MaterialTheme.typography.bodyMedium, color = modeColor(held.mode))
+                            } else {
+                                Text(prettify(day.name.lowercase()), style = MaterialTheme.typography.headlineSmall)
+                                Text(
+                                    stringResource(R.string.sched_periods, entries.size, rules.maxEntries ?: entries.size),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
+                    }
+                    if (entries.isNotEmpty()) {
+                        Text(
+                            stringResource(R.string.sched_dial_hint),
+                            Modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                        )
                     }
                     if (entries.isEmpty()) {
                         Text(
@@ -185,7 +209,7 @@ fun ScheduleEditorScreen(vm: AppViewModel, featureName: String, initialDay: Day?
     editing?.let { (day, index) ->
         val existing = index?.let { schedule.day(day).getOrNull(it) }
         EntryDialog(
-            initial = existing ?: ScheduleEntry(rules.modes.firstOrNull() ?: "normal", "06:00", "22:00"),
+            initial = existing ?: newEntry(rules, schedule.day(day)),
             modes = rules.modes,
             resolution = rules.resolutionMinutes ?: 1,
             canDelete = existing != null,
@@ -213,6 +237,13 @@ fun ScheduleEditorScreen(vm: AppViewModel, featureName: String, initialDay: Day?
             },
         )
     }
+}
+
+/** An empty day gets the usual daytime period, otherwise the new one starts in free time. */
+private fun newEntry(rules: ScheduleRules, entries: List<ScheduleEntry>): ScheduleEntry {
+    val mode = rules.modes.firstOrNull() ?: "normal"
+    val slot = ScheduleDrag.freeSlot(entries, rules.resolutionMinutes ?: 1).takeIf { entries.isNotEmpty() }
+    return if (slot == null) ScheduleEntry(mode, "06:00", "22:00") else ScheduleEntry(mode, Schedule.format(slot.first), Schedule.format(slot.second))
 }
 
 /** Seven round day buttons; today is outlined, changed days get a dot. */

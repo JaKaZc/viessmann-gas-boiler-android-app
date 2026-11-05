@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.vigasboiler.app.analytics.Analytics
 import com.vigasboiler.app.auth.TokenManager
+import com.vigasboiler.app.history.HistoryBackup
 import com.vigasboiler.app.widget.BoilerWidget
 import com.vigasboiler.app.settings.SettingsRepository
 import com.vigasboiler.app.work.BackgroundRefresh
@@ -26,6 +27,7 @@ class ViessmannApp : Application(), Configuration.Provider {
     @Inject lateinit var settings: SettingsRepository
     @Inject lateinit var analytics: Analytics
     @Inject lateinit var tokenManager: TokenManager
+    @Inject lateinit var historyBackup: HistoryBackup
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -38,6 +40,8 @@ class ViessmannApp : Application(), Configuration.Provider {
         scope.launch {
             BackgroundRefresh.schedule(this@ViessmannApp, settings.current().backgroundIntervalMinutes)
         }
+        // After a reinstall or on a new phone: the history Android's backup brought back.
+        scope.launch { historyBackup.restore() }
         // Widgets switch between "sign in" and data, and show the next refresh for a new interval.
         scope.launch {
             combine(tokenManager.state, settings.settings.map { it.backgroundIntervalMinutes }) { auth, interval -> auth to interval }

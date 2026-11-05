@@ -234,6 +234,19 @@ class FeatureRepository(
         return FeatureParser.parse(response.body()?.string().orEmpty()).firstOrNull { it.name == name }
     }
 
+    /** Forgets the device and everything read from it: selection, snapshot, cache, pending changes. */
+    suspend fun clear() {
+        mutex.withLock {
+            _snapshot.value = null
+            pending.clear()
+            lastFullRefreshAttempt = 0
+            selectionStore.write(null)
+            withContext(Dispatchers.IO) { cacheDir.deleteRecursively() }
+        }
+    }
+
+    suspend fun select(selection: Selection) = selectionStore.write(selection)
+
     /** Uses the stored selection, else the discovery dump, else one equipment call. */
     suspend fun resolveSelection(kind: CallKind = CallKind.Automatic): Selection? {
         selectionStore.read()?.let { return it }

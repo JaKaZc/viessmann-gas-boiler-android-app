@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ViGasBoiler Privacy Policy</title>
+<style>
+  :root { --bg: #ffffff; --fg: #1b2330; --muted: #5a6475; --accent: #1f6feb; --line: #e3e8ef; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #11151b; --fg: #e6ebf2; --muted: #a2adbd; --accent: #6aa5ff; --line: #2a323d; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 32px 0 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+  p.meta { color: var(--muted); margin: 0 0 24px; }
+  a { color: var(--accent); }
+  li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>ViGasBoiler Privacy Policy</h1>
+<p class="meta">Effective 3 November 2026 · applies to the ViGasBoiler Android app (com.vigasboiler.app)</p>
+
+<p>ViGasBoiler is an independent app for monitoring and controlling a Viessmann gas boiler through the official Viessmann API. It is not affiliated with Viessmann. This policy explains what data the app handles and where it goes.</p>
+
+<h2>Summary</h2>
+<ul>
+  <li>Your boiler data and history are kept on your phone and, if your phone's backup is on, in your own Google backup. Sign-in tokens never leave the phone.</li>
+  <li>The developer of ViGasBoiler never receives any of this data.</li>
+  <li>The app talks to Viessmann's servers with your own account, and to Google Analytics for Firebase only if you agree.</li>
+  <li>There are no ads, no advertising ID and no selling or sharing of data.</li>
+</ul>
+
+<h2>Data on your device</h2>
+<ul>
+  <li><strong>Boiler data and history:</strong> temperatures, burner status, counters, settings and messages read from your boiler are stored in the app's private storage to show charts and statistics.</li>
+  <li><strong>Sign-in tokens:</strong> encrypted with a key in the Android Keystore.</li>
+  <li><strong>API client ID and app settings.</strong></li>
+</ul>
+<p>This data is deleted from the phone when you uninstall the app or clear its data. You can export your history yourself as a CSV file from Settings.</p>
+
+<h2>Android backup</h2>
+<p>If backup is turned on for your phone, Android saves a compact copy of your history, your app settings and your API client ID to your own Google account, so they return when you reinstall the app or move to a new phone. This is Android's standard Auto Backup: the backup is encrypted on the phone with your screen lock, is stored by Google in a private area of your account, and cannot be read by the developer. The app only takes part when the backup can be encrypted this way. Sign-in tokens, their encryption key and your installation and gateway IDs are not included.</p>
+<p>You can stop this at any time by turning off backup in your phone's settings, and remove stored backups in the Google Drive app or in your Google account.</p>
+
+<h2>Viessmann</h2>
+<p>To show and change your boiler's data, the app connects directly to the Viessmann API (viessmann-climatesolutions.com and related Viessmann hosts) using the developer client you created and the ViCare account you sign in with. You sign in on Viessmann's own login page; the app never sees your password. The developer of ViGasBoiler does not receive this data. Viessmann's handling of it is covered by Viessmann's privacy policy.</p>
+
+<h2>Anonymous usage statistics (optional)</h2>
+<p>After your first sign-in, the app asks whether it may send anonymous usage statistics. Nothing is sent unless you agree, and you can change your choice at any time in Settings → Privacy. Turning it off stops collection and deletes statistics not yet sent.</p>
+<p>If you agree, the app uses <a href="https://firebase.google.com/support/privacy">Google Analytics for Firebase</a> to collect:</p>
+<ul>
+  <li>which screens are opened;</li>
+  <li>which kind of setting was changed (the feature and command name, not the value) and whether it worked;</li>
+  <li>the sign-in method and error categories, and the chosen theme;</li>
+  <li>information Firebase adds automatically: an app instance identifier, app version, phone model, Android version, language and country (derived from the IP address, which Google does not store).</li>
+</ul>
+<p>Never collected: boiler values, installation, gateway or serial numbers, your client ID, your account or e-mail, your location, the advertising ID or the Android ID.</p>
+<p>The statistics are used only to understand which features are used and where errors happen, so the app can be improved. Data is encrypted in transit and retained by Google Analytics for up to 14 months.</p>
+
+<h2>Permissions</h2>
+<ul>
+  <li><strong>Internet:</strong> to reach the Viessmann API and, if you agreed, Firebase.</li>
+  <li><strong>Notifications:</strong> optional, for fault, pressure and gateway alerts.</li>
+</ul>
+
+<h2>Children</h2>
+<p>The app is intended for adults who operate a heating system and is not directed at children under 13.</p>
+
+<h2>Your choices and rights</h2>
+<p>You can turn analytics off in Settings, sign out in the app, or uninstall it to remove all local data. Backups are managed in your Google account, as described above. For questions about data or to request deletion of analytics data associated with your app instance, contact us at the address below.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the new version will be published at this address with a new effective date.</p>
+
+<h2>Contact</h2>
+<p>ViGasBoiler developer · <a href="mailto:CONTACT_EMAIL">CONTACT_EMAIL</a></p>
+</main>
+</body>
+</html>

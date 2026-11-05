@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -84,6 +85,10 @@ fun SetupWizard(viewModel: LoginViewModel, sessionExpired: Boolean) {
     var step by rememberSaveable { mutableIntStateOf(if (client.clientId != null) Step.SignIn.ordinal else Step.Welcome.ordinal) }
     val current = Step.entries[step]
     BackHandler(enabled = current != Step.Welcome) { step-- }
+    var askDemo by rememberSaveable { mutableStateOf(false) }
+    if (askDemo) {
+        DemoDialog(onStart = { askDemo = false; viewModel.startDemo() }, onDismiss = { askDemo = false })
+    }
 
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.safeDrawingPadding()) {
@@ -104,7 +109,11 @@ fun SetupWizard(viewModel: LoginViewModel, sessionExpired: Boolean) {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     when (s) {
-                        Step.Welcome -> Welcome(onStart = { step = Step.Account.ordinal }, onHaveClient = { step = Step.ClientId.ordinal })
+                        Step.Welcome -> Welcome(
+                            onStart = { step = Step.Account.ordinal },
+                            onHaveClient = { step = Step.ClientId.ordinal },
+                            onDemo = { askDemo = true },
+                        )
                         Step.Account -> AccountStep()
                         Step.Client -> ClientStep(viewModel.redirectUri)
                         Step.ClientId -> ClientIdStep(client.clientId, onSave = { input ->
@@ -133,7 +142,7 @@ private fun StepProgress(step: Int, of: Int) {
 }
 
 @Composable
-private fun ColumnScope.Welcome(onStart: () -> Unit, onHaveClient: () -> Unit) {
+private fun ColumnScope.Welcome(onStart: () -> Unit, onHaveClient: () -> Unit, onDemo: () -> Unit) {
     Spacer(Modifier.height(24.dp))
     IconBadge(R.drawable.ic_nav_heating, MaterialTheme.colorScheme.primary, Modifier.align(Alignment.CenterHorizontally), size = 88)
     Text(stringResource(R.string.app_name), Modifier.fillMaxWidth(), style = MaterialTheme.typography.displaySmall, textAlign = TextAlign.Center)
@@ -147,7 +156,21 @@ private fun ColumnScope.Welcome(onStart: () -> Unit, onHaveClient: () -> Unit) {
     Text(stringResource(R.string.setup_own_client), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Spacer(Modifier.weight(1f))
     Button(onClick = onStart, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text(stringResource(R.string.setup_start), style = MaterialTheme.typography.titleMedium) }
+    OutlinedButton(onClick = onDemo, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text(stringResource(R.string.setup_demo), style = MaterialTheme.typography.titleMedium) }
     TextButton(onClick = onHaveClient, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.setup_have_client)) }
+}
+
+/** What the demo is. */
+@Composable
+private fun DemoDialog(onStart: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(painterResource(R.drawable.ic_boiler), null) },
+        title = { Text(stringResource(R.string.demo_title)) },
+        text = { Text(stringResource(R.string.demo_text)) },
+        confirmButton = { Button(onClick = onStart) { Text(stringResource(R.string.demo_start)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
 }
 
 @Composable

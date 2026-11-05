@@ -11,6 +11,12 @@
     <string name="setup_own_client">Every user registers their own API client. Your data goes straight from Viessmann to this phone.</string>
     <string name="setup_start">Start setup</string>
     <string name="setup_have_client">I already have a client ID</string>
+    <string name="setup_demo">Try with sample data</string>
+    <string name="demo_title">Try with sample data</string>
+    <string name="demo_text">Explore the app with a sample Vitodens boiler and a week of history. No account is needed and nothing is sent to Viessmann. Leave the demo any time under More → Exit demo.</string>
+    <string name="demo_start">Start demo</string>
+    <string name="demo_banner">Demo with sample data, not a real boiler</string>
+    <string name="demo_exit">Exit demo</string>
     <string name="setup_step_of">Step %1$d of %2$d</string>
     <string name="setup_next">Next</string>
     <string name="setup_back">Back</string>

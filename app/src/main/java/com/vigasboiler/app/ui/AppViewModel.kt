@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -23,6 +22,7 @@ import com.vigasboiler.app.analytics.Analytics
 import com.vigasboiler.app.analytics.AnalyticsEvents
 import com.vigasboiler.app.analytics.AnalyticsNames
 import com.vigasboiler.app.analytics.AnalyticsParams
+import com.vigasboiler.app.demo.DemoSession
 import com.vigasboiler.app.feature.CommandOutcome
 import com.vigasboiler.app.feature.CommandValidator
 import com.vigasboiler.app.feature.Feature
@@ -64,7 +64,11 @@ class AppViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val analytics: Analytics,
     heatingCheck: HeatingCheckRepository,
+    demoSession: DemoSession,
 ) : ViewModel() {
+
+    /** Demo mode: the sample installation instead of the user's boiler. */
+    val demo: StateFlow<Boolean> = demoSession.active
 
     /** Days collected for the heating check (null until read). */
     val checkReadiness: StateFlow<HeatingCheck.Readiness?> = heatingCheck.readiness.stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -77,10 +81,12 @@ class AppViewModel @Inject constructor(
 
     /**
      * Ask for consent only where analytics can actually run (live release with Firebase config),
-     * and only once the stored answer has been read: starts false so the dialog never flashes.
+     * not in the demo, and only once the stored answer has been read: starts false so the dialog
+     * never flashes.
      */
-    val askAnalyticsConsent: StateFlow<Boolean> = settingsRepository.settings
-        .map { analytics.isAvailable && it.analyticsConsent == null }
+    val askAnalyticsConsent: StateFlow<Boolean> = combine(settingsRepository.settings, demoSession.active) { s, demo ->
+        analytics.isAvailable && s.analyticsConsent == null && !demo
+    }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
     val analyticsAvailable: Boolean get() = analytics.isAvailable
 

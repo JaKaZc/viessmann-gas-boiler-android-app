@@ -19,6 +19,8 @@ import com.vigasboiler.app.auth.IamRefreshClient
 import com.vigasboiler.app.auth.TokenAuthenticator
 import com.vigasboiler.app.auth.TokenManager
 import com.vigasboiler.app.config.ApiConfig
+import com.vigasboiler.app.demo.DemoInterceptor
+import com.vigasboiler.app.mock.MockApiInterceptor
 import com.vigasboiler.app.net.RedactingLogInterceptor
 import com.vigasboiler.app.ratelimit.RateLimitInterceptor
 import com.vigasboiler.app.ratelimit.RateLimitTracker
@@ -44,9 +46,11 @@ object FlavorModule {
     fun analytics(@ApplicationContext context: Context): Analytics = FirebaseAnalyticsTracker(context)
 
     @Provides @Singleton
-    fun apiHttpClient(tokenManager: TokenManager, tracker: RateLimitTracker): OkHttpClient =
+    fun apiHttpClient(@ApplicationContext context: Context, tokenManager: TokenManager, tracker: RateLimitTracker): OkHttpClient =
         OkHttpClient.Builder()
             .callTimeout(60, TimeUnit.SECONDS)
+            // Demo mode answers here from the sample installation; nothing below runs.
+            .addInterceptor(DemoInterceptor(tokenManager, MockApiInterceptor(context.assets)))
             .addInterceptor(AuthInterceptor(tokenManager))
             .authenticator(TokenAuthenticator(tokenManager))
             // Network interceptor: also counts the retry after a 401 refresh.

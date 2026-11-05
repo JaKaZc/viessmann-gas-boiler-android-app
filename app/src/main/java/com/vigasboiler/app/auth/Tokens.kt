@@ -12,6 +12,13 @@ data class Tokens(
     fun expiresWithin(nowMillis: Long, marginMillis: Long): Boolean =
         nowMillis + marginMillis >= expiresAtMillis
 
+    /** Demo mode: placeholder tokens that never expire and never reach a server. */
+    val isDemo: Boolean get() = accessToken == DEMO.accessToken
+
+    companion object {
+        val DEMO = Tokens("demo", "demo", Long.MAX_VALUE)
+    }
+
     // Never print token values, not even by accident through string templates.
     override fun toString(): String = "Tokens(accessToken=***, refreshToken=***, expiresAtMillis=$expiresAtMillis)"
 }

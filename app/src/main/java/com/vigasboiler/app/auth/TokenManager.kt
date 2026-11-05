@@ -24,6 +24,10 @@ class TokenManager(
     private val _state = MutableStateFlow(AuthState.Unknown)
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
+    private val _demo = MutableStateFlow(false)
+    /** Signed in with [Tokens.DEMO]: the app shows the sample installation. */
+    val demo: StateFlow<Boolean> = _demo.asStateFlow()
+
     suspend fun initialize() {
         mutex.withLock { load() }
     }
@@ -32,8 +36,12 @@ class TokenManager(
         storage.write(tokens)
         cached = tokens
         loaded = true
+        _demo.value = tokens.isDemo
         _state.value = AuthState.SignedIn
     }
+
+    /** Whether API calls must be answered from the sample data; reads storage on first use. */
+    suspend fun isDemo(): Boolean = mutex.withLock { load()?.isDemo == true }
 
     suspend fun signOut() = mutex.withLock {
         clearLocked(AuthState.SignedOut)
@@ -66,6 +74,7 @@ class TokenManager(
         if (!loaded) {
             cached = storage.read()
             loaded = true
+            _demo.value = cached?.isDemo == true
             if (_state.value == AuthState.Unknown) {
                 _state.value = if (cached != null) AuthState.SignedIn else AuthState.SignedOut
             }
@@ -97,6 +106,7 @@ class TokenManager(
         storage.clear()
         cached = null
         loaded = true
+        _demo.value = false
         _state.value = newState
     }
 

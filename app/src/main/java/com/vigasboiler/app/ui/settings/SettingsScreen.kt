@@ -56,6 +56,7 @@ import com.vigasboiler.app.analytics.AnalyticsParams
 import com.vigasboiler.app.auth.ClientIdStore
 import com.vigasboiler.app.auth.TokenManager
 import com.vigasboiler.app.config.ApiConfig
+import com.vigasboiler.app.demo.DemoSession
 import com.vigasboiler.app.ui.common.LabeledRow
 import com.vigasboiler.app.history.HistoryRepository
 import com.vigasboiler.app.settings.AppSettings
@@ -75,6 +76,7 @@ class SettingsViewModel @Inject constructor(
     private val settings: SettingsRepository,
     private val clientIdStore: ClientIdStore,
     private val tokenManager: TokenManager,
+    private val demo: DemoSession,
     config: ApiConfig,
 ) : ViewModel() {
     val clientId: StateFlow<String?> = clientIdStore.clientId.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -83,7 +85,7 @@ class SettingsViewModel @Inject constructor(
     /** Signs out and forgets the client ID: the app returns to the setup wizard. */
     fun changeClient() {
         viewModelScope.launch {
-            tokenManager.signOut()
+            if (demo.active.value) demo.end() else tokenManager.signOut()
             clientIdStore.clear()
         }
     }

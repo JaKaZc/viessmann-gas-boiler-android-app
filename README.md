@@ -14,7 +14,8 @@ reports, so other E3 boilers should work too.
   indicator with modulation, supply temperatures, system pressure, gateway status and Wi-Fi
   signal, and how much of the API budget is left.
 - **Heating:** operating mode, room temperature per program (reduced / normal / comfort), a
-  weekly schedule editor with a 24-hour dial, holiday programs, and a detailed heating-curve
+  weekly schedule editor with a touch 24-hour dial (drag a dot to change a time, drag an arc to
+  move the period), holiday programs, and a detailed heating-curve
   chart you can drag across to read values, with live preview while you change slope and shift.
 - **Statistics:** burner hours and starts, gas / electricity / heat counters with month and year
   comparison, efficiency, 30-day outside temperature, and gas-use bars built from the app's own
@@ -56,7 +57,7 @@ sent. The new value shows immediately and is confirmed by re-reading the boiler.
 
 **Phone**
 
-- Android 9 (API 28) or newer. The app is not on Google Play yet; install the APK you build.
+- Android 9 (API 28) or newer.
 
 **To build**
 
@@ -112,9 +113,11 @@ adb install -r app/build/outputs/apk/live/release/app-live-release.apk
 (no code optimisation, extra checks); charts and animations stutter there. The release build is
 minified with R8 and is about 5 MB instead of 45 MB.
 
-The release build is signed with your local **debug key** so it can be installed without further
-setup. That is fine for your own phone. If you share APKs with others, create your own signing key
-and configure `signingConfigs` in `app/build.gradle.kts`.
+Release builds are signed with the Play **upload key** when `keystore.properties` (and the keystore
+it names) exists in the project root, otherwise with your local **debug key** so they install
+without further setup. Both files are git-ignored. For the Play Store bundle run
+`./gradlew :app:bundleLiveRelease`; `play-store/README.md` has the listing texts, graphics and the
+Play Console checklist.
 
 Run the unit tests with:
 
@@ -138,6 +141,13 @@ The setup wizard guides through everything:
 3. **Register this app:** the client settings above, with the redirect URI to copy.
 4. **Client ID:** paste the client ID from the portal (stored on the phone only).
 5. **Sign in** with your ViCare account. If it fails, the wizard lists the usual causes.
+
+**Try with sample data** on the first page starts a demo without any account: the bundled sample
+installation from `docs/feature-dump/` (the same as the mock flavor) with a generated week of
+history, so every screen, chart and the heating check can be explored. Nothing reaches the network.
+Starting and leaving the demo (banner or More → Exit demo) clear the history and cached device
+data on the phone, so demo values never mix with a real boiler's. History from an earlier sign-in
+is saved first and returns when the demo ends; demo data is never backed up.
 
 Then the app finds your installation, gateway and heating device and loads all features. Allow
 notifications if you want fault, pressure and gateway alerts.
@@ -172,8 +182,15 @@ account for the rest of the window, **including the official ViCare app**. The a
 
 ## Privacy and security
 
-- Your boiler data, history, tokens and client ID stay on your phone; the app talks to
-  Viessmann's servers and, only if you agree, to Google Analytics for Firebase.
+- Your boiler data, history, tokens and client ID stay on your phone, apart from the backup
+  below; the app talks to Viessmann's servers and, only if you agree, to Google Analytics for
+  Firebase.
+- **Backup:** with the phone's backup on, Android Auto Backup saves the history (as one compact
+  file per day in `files/history-backup/`), the settings and the client ID to your own Google
+  account, roughly once a night, only when it can be encrypted. After a reinstall or on a new phone
+  they come back; you only sign in again. Tokens, their key, the database and the device selection
+  are excluded (`res/xml/data_extraction_rules.xml`, `backup_rules.xml`). Several phones are not
+  kept in sync: each one has its own backup.
 - **Analytics is opt-in.** Asked once after the first sign-in, changeable in Settings → Privacy;
   turning it off also deletes statistics not yet sent. Collected: screens opened, which setting
   was changed (feature and command name, not the value) and whether it worked, sign-in method and
@@ -181,8 +198,7 @@ account for the rest of the window, **including the official ViCare app**. The a
   country. Never collected: boiler values, installation or gateway IDs, serial numbers, the
   client ID, account or location data, the advertising ID or the Android ID (the ad-ID
   permissions are removed from the app). Debug builds and the mock flavor send nothing.
-- OAuth tokens are encrypted (Tink AES-256-GCM, key in the Android Keystore). App backup is
-  disabled, so tokens and history are never copied off the device.
+- OAuth tokens are encrypted (Tink AES-256-GCM, key in the Android Keystore) and never backed up.
 - Debug builds log only the request method, a path with IDs masked, and the status code; release
   builds log nothing.
 - Commands are only ever sent to the Viessmann API host.

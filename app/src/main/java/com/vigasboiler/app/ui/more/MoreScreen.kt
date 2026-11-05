@@ -22,7 +22,7 @@ import com.vigasboiler.app.ui.common.RowDivider
 import com.vigasboiler.app.ui.common.SectionHeader
 
 @Composable
-fun MoreScreen(navigate: Navigate, onSignOut: () -> Unit, checkReadiness: HeatingCheck.Readiness?) {
+fun MoreScreen(navigate: Navigate, onSignOut: () -> Unit, checkReadiness: HeatingCheck.Readiness?, demo: Boolean = false) {
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -51,7 +51,7 @@ fun MoreScreen(navigate: Navigate, onSignOut: () -> Unit, checkReadiness: Heatin
             RowDivider()
             NavRow(stringResource(R.string.more_discovery), R.drawable.ic_bug, stringResource(R.string.more_discovery_sub)) { navigate("discovery") }
             RowDivider()
-            NavRow(stringResource(R.string.set_sign_out), R.drawable.ic_logout, null, onSignOut)
+            NavRow(stringResource(if (demo) R.string.demo_exit else R.string.set_sign_out), R.drawable.ic_logout, null, onSignOut)
         }
     }
 }

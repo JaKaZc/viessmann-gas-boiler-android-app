@@ -2,10 +2,13 @@ package com.vigasboiler.app.ui.heating
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -25,8 +28,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,16 +42,25 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.time.LocalDateTime
+import kotlin.math.PI
+import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlinx.coroutines.delay
 import com.vigasboiler.app.R
 import com.vigasboiler.app.feature.Day
+import com.vigasboiler.app.feature.DialGrab
+import com.vigasboiler.app.feature.DialPart
 import com.vigasboiler.app.feature.Schedule
+import com.vigasboiler.app.feature.ScheduleDrag
 import com.vigasboiler.app.feature.ScheduleEntry
 import com.vigasboiler.app.feature.ScheduleNow
 import com.vigasboiler.app.ui.common.prettify
@@ -173,27 +188,99 @@ fun WeekColumns(schedule: Schedule, onDayClick: ((Day) -> Unit)? = null) {
 }
 
 /**
- * 24 h ring for one day: midnight at the top, periods as arcs (animated in), 3-hour ticks and a
- * "now" dot when [showNow]. [label] is drawn inside the ring.
+ * 24 h ring for one day that is edited by touch: midnight at the top, periods as arcs with a
+ * handle at each end, 3-hour ticks and a "now" dot when [showNow]. Dragging a handle changes that
+ * time, dragging an arc moves the whole period (see [ScheduleDrag]); tapping opens the period
+ * through [onTap]. [label] is drawn inside the ring and gets what the finger holds.
  */
 @Composable
-fun DayDial(entries: List<ScheduleEntry>, showNow: Boolean, modifier: Modifier = Modifier, label: @Composable BoxScope.() -> Unit) {
+fun DayDial(
+    entries: List<ScheduleEntry>,
+    showNow: Boolean,
+    resolution: Int,
+    onChange: (List<ScheduleEntry>) -> Unit,
+    onTap: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    label: @Composable BoxScope.(DialGrab?) -> Unit,
+) {
     val (_, minute) = rememberNow()
     val track = MaterialTheme.colorScheme.surfaceContainerHighest
     val tick = MaterialTheme.colorScheme.onSurfaceVariant
     val nowColor = MaterialTheme.colorScheme.onSurface
+    val handleFill = MaterialTheme.colorScheme.surfaceContainerLowest
     val colors = entries.map { modeColor(it.mode) }
+    // Once per day shown: restarting on every change would make the arcs flicker while dragging.
     val sweep = remember { Animatable(0f) }
-    LaunchedEffect(entries) {
-        sweep.snapTo(0f)
-        sweep.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
-    }
+    LaunchedEffect(Unit) { sweep.animateTo(1f, tween(700, easing = FastOutSlowInEasing)) }
+
+    var grab by remember { mutableStateOf<DialGrab?>(null) }
+    val lift by animateFloatAsState(if (grab != null) 1f else 0f, label = "lift")
+    val latest by rememberUpdatedState(entries)
+    val latestResolution by rememberUpdatedState(resolution)
+    val change by rememberUpdatedState(onChange)
+    val tap by rememberUpdatedState(onTap)
+    val haptics = LocalHapticFeedback.current
+
     Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxWidth().fillMaxHeight()) {
-            val stroke = size.minDimension * 0.11f
+        Canvas(
+            Modifier.fillMaxWidth().fillMaxHeight().pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val centre = Offset(size.width / 2f, size.height / 2f)
+                    val min = minOf(size.width, size.height).toFloat()
+                    val stroke = min * DIAL_STROKE
+                    val radius = min / 2 - stroke
+                    val reach = maxOf(stroke, HANDLE_REACH.toPx())
+                    val fromCentre = (down.position - centre).getDistance()
+                    if (fromCentre !in (radius - reach)..(radius + reach)) return@awaitEachGesture
+                    val toleranceMinutes = HANDLE_REACH.toPx() / (2 * PI * radius) * 1440
+                    val origin = latest
+                    val step = latestResolution
+                    val candidates = ScheduleDrag.hit(origin, minuteAt(down.position, centre), toleranceMinutes)
+                    if (candidates.isEmpty()) return@awaitEachGesture
+                    // Consumed from here on, so the screen does not scroll under the finger.
+                    down.consume()
+                    grab = candidates.first()
+                    var held = candidates.first()
+                    var last = minuteAt(down.position, centre)
+                    var travelled = 0.0
+                    var moved = false
+                    while (true) {
+                        val pointer = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: break
+                        if (!pointer.pressed) {
+                            pointer.consume()
+                            break
+                        }
+                        val now = minuteAt(pointer.position, centre)
+                        travelled += ScheduleDrag.ringDelta(last, now)
+                        last = now
+                        if (!moved && (pointer.position - down.position).getDistance() > viewConfiguration.touchSlop) {
+                            moved = true
+                            held = ScheduleDrag.pick(origin, candidates, if (travelled < 0) -step else step, step)
+                            grab = held
+                        }
+                        pointer.consume()
+                        if (moved) {
+                            val next = ScheduleDrag.apply(origin, held, travelled.roundToInt(), step)
+                            if (next.map { it.start to it.end } != latest.map { it.start to it.end }) {
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                change(next)
+                            }
+                        }
+                    }
+                    grab = null
+                    if (!moved) tap(held.index)
+                }
+            },
+        ) {
+            val stroke = size.minDimension * DIAL_STROKE
             val radius = size.minDimension / 2 - stroke
             val topLeft = Offset(center.x - radius, center.y - radius)
             val arcSize = Size(radius * 2, radius * 2)
+            fun onRing(minutes: Int): Offset {
+                val a = Math.toRadians(minutes / 1440.0 * 360 - 90)
+                return Offset(center.x + (cos(a) * radius).toFloat(), center.y + (sin(a) * radius).toFloat())
+            }
             drawArc(track, 0f, 360f, false, topLeft, arcSize, style = Stroke(stroke))
             entries.forEachIndexed { i, e ->
                 val s = Schedule.minutesOf(e.start) ?: return@forEachIndexed
@@ -201,7 +288,7 @@ fun DayDial(entries: List<ScheduleEntry>, showNow: Boolean, modifier: Modifier =
                 if (en <= s) return@forEachIndexed
                 val start = s / 1440f * 360f - 90f
                 val length = (en - s) / 1440f * 360f
-                drawArc(colors[i], start, length * sweep.value, false, topLeft, arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+                drawArc(colors[i], start, length * sweep.value, false, topLeft, arcSize, style = Stroke(stroke))
             }
             // Ticks at 3, 9, 15 and 21 h; 0/6/12/18 are marked by their numbers.
             for (h in 3 until 24 step 6) {
@@ -215,9 +302,17 @@ fun DayDial(entries: List<ScheduleEntry>, showNow: Boolean, modifier: Modifier =
                     strokeWidth = 3f, cap = StrokeCap.Round,
                 )
             }
-            if (showNow) {
-                val a = Math.toRadians(minute / 1440.0 * 360 - 90)
-                drawCircle(nowColor, stroke * 0.32f, Offset(center.x + (cos(a) * radius).toFloat(), center.y + (sin(a) * radius).toFloat()))
+            if (showNow) drawCircle(nowColor, stroke * 0.2f, onRing(minute))
+            // Handles on top: the held ones grow under the finger.
+            entries.forEachIndexed { i, e ->
+                val held = grab?.takeIf { it.index == i }
+                listOf(DialPart.Start to e.start, DialPart.End to e.end).forEach { (part, time) ->
+                    val at = Schedule.minutesOf(time) ?: return@forEach
+                    val active = held != null && (held.part == part || held.part == DialPart.Body)
+                    val r = stroke * (0.56f + if (active) 0.22f * lift else 0f)
+                    drawCircle(handleFill.copy(alpha = sweep.value), r, onRing(at))
+                    drawCircle(colors[i].copy(alpha = sweep.value), r, onRing(at), style = Stroke(stroke * 0.16f))
+                }
             }
         }
         // Hour labels just inside the ring.
@@ -227,8 +322,20 @@ fun DayDial(entries: List<ScheduleEntry>, showNow: Boolean, modifier: Modifier =
             Text("12", Modifier.align(Alignment.BottomCenter), style = MaterialTheme.typography.labelSmall, color = tick)
             Text("18", Modifier.align(Alignment.CenterStart), style = MaterialTheme.typography.labelSmall, color = tick)
         }
-        Box(Modifier.fillMaxWidth(0.5f), contentAlignment = Alignment.Center, content = label)
+        Box(Modifier.fillMaxWidth(0.5f), contentAlignment = Alignment.Center) { label(grab) }
     }
+}
+
+/** Ring thickness as a share of the dial's size. */
+private const val DIAL_STROKE = 0.11f
+
+/** How far from a handle a finger still catches it. */
+private val HANDLE_REACH = 26.dp
+
+/** Minute of the day at a point: midnight at the top, clockwise. */
+private fun minuteAt(position: Offset, centre: Offset): Double {
+    val degrees = Math.toDegrees(atan2((position.y - centre.y).toDouble(), (position.x - centre.x).toDouble())) + 90
+    return degrees.mod(360.0) / 360 * 1440
 }
 
 @Composable

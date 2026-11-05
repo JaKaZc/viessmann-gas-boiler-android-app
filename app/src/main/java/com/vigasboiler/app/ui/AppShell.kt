@@ -3,6 +3,7 @@ package com.vigasboiler.app.ui
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -42,6 +43,7 @@ import com.vigasboiler.app.feature.FeatureSnapshot
 import com.vigasboiler.app.feature.MessageLevel
 import com.vigasboiler.app.ui.common.AccentBackdrop
 import com.vigasboiler.app.ui.common.AppHeader
+import com.vigasboiler.app.ui.common.DemoBanner
 import com.vigasboiler.app.ui.common.AppNavBar
 import com.vigasboiler.app.ui.common.NavItem
 import com.vigasboiler.app.ui.common.TabIconKind
@@ -123,6 +125,7 @@ fun AppShell(vm: AppViewModel, onSignOut: () -> Unit) {
     val rootTab = Tab.entries.first { it.route == stack.first() }
     val accents = AppColors.extra.tabs
     val snapshot by vm.snapshot.collectAsStateWithLifecycle()
+    val demo by vm.demo.collectAsStateWithLifecycle()
     val faults = snapshot?.let { s -> DeviceMessages.bannerMessages(s, System.currentTimeMillis()).count { it.level == MessageLevel.Error } } ?: 0
 
     AccentBackdrop(accents[rootTab.ordinal]) {
@@ -130,7 +133,12 @@ fun AppShell(vm: AppViewModel, onSignOut: () -> Unit) {
             containerColor = Color.Transparent,
             // A transparent container gives no content colour of its own: text would stay black in dark mode.
             contentColor = MaterialTheme.colorScheme.onBackground,
-            topBar = { AppHeader(titleFor(route), if (tab != null) subtitleFor(tab, snapshot) else null, onBack = if (tab == null) pop else null) },
+            topBar = {
+                Column {
+                    AppHeader(titleFor(route), if (tab != null) subtitleFor(tab, snapshot) else null, onBack = if (tab == null) pop else null)
+                    if (demo) DemoBanner(onExit = onSignOut)
+                }
+            },
             bottomBar = {
                 AppNavBar(
                     Tab.entries.map { t ->
@@ -216,7 +224,7 @@ private fun Screen(route: String, vm: AppViewModel, navigate: Navigate, pop: () 
         }
         route == Tab.Messages.route -> MessagesScreen(vm, navigate)
         route == "status-messages" -> StatusMessagesScreen(vm)
-        route == Tab.More.route -> MoreScreen(navigate, onSignOut, vm.checkReadiness.collectAsStateWithLifecycle().value)
+        route == Tab.More.route -> MoreScreen(navigate, onSignOut, vm.checkReadiness.collectAsStateWithLifecycle().value, vm.demo.collectAsStateWithLifecycle().value)
         route == "heating-check" -> HeatingCheckScreen(navigate, onDone = pop)
         route == "explorer" -> ExplorerScreen(vm, navigate)
         route.startsWith("feature:") -> FeatureDetailScreen(vm, route.removePrefix("feature:"), navigate)

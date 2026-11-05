@@ -142,6 +142,7 @@
     <string name="sched_outside_periods">%1$s (rest of day)</string>
     <string name="sched_edit_short">Edit</string>
     <string name="sched_periods">%1$d of %2$d periods</string>
+    <string name="sched_dial_hint">Drag a dot to change a time, drag a coloured arc to move the period. Tap to edit.</string>
     <string name="sched_unsaved">Unsaved changes</string>
     <string name="sched_discard">Discard</string>
     <string name="sched_copy_short">Copy to…</string>
