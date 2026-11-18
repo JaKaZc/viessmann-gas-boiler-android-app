@@ -6,11 +6,19 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import com.vigasboiler.app.data.HistoryRow
 
-/** Time range of the charts: line buckets (averages) and column buckets (totals per hour or day). */
+/**
+ * Time range of the charts: line buckets (averages) and column buckets (totals per hour or day).
+ * [hours] is the longest the range can be: Today runs from local midnight to now.
+ */
 enum class ChartRange(val hours: Int, val bucketMinutes: Int, val daily: Boolean) {
+    Today(24, 30, daily = false),
     Day(24, 30, daily = false),
     Week(24 * 7, 120, daily = true),
-    Month(24 * 30, 360, daily = true),
+    Month(24 * 30, 360, daily = true);
+
+    fun startMillis(nowMillis: Long, zone: ZoneId): Long =
+        if (this == Today) Instant.ofEpochMilli(nowMillis).atZone(zone).toLocalDate().atStartOfDay(zone).toInstant().toEpochMilli()
+        else nowMillis - hours * 3_600_000L
 }
 
 enum class ChartKind(val columns: Boolean) {
@@ -74,7 +82,7 @@ object ChartBuilder {
     private const val DAY = 24 * HOUR
 
     fun build(range: ChartRange, nowMillis: Long, data: Map<Source, List<HistoryRow>>, zone: ZoneId): ChartSet {
-        val start = nowMillis - range.hours * HOUR
+        val start = range.startMillis(nowMillis, zone)
         val bucket = range.bucketMinutes * 60_000L
         fun rows(s: Source) = data[s].orEmpty().filter { it.timestampMillis in start..nowMillis }.sortedBy { it.timestampMillis }
         fun all(s: Source) = data[s].orEmpty().filter { it.timestampMillis <= nowMillis }.sortedBy { it.timestampMillis }
@@ -131,15 +139,19 @@ object ChartBuilder {
         }
     }
 
-    /** Column buckets: whole hours (24 h) or local days (7 / 30 days). */
+    /** Column buckets: whole hours (Today, 24 h) or local days (7 / 30 days). */
     private class Columns(range: ChartRange, start: Long, val zone: ZoneId) {
         val daily = range.daily
         val firstDay: LocalDate = Instant.ofEpochMilli(start).atZone(zone).toLocalDate()
-        val startMillis: Long = if (daily) firstDay.atStartOfDay(zone).toInstant().toEpochMilli() else start - start % HOUR
+        val startMillis: Long = when {
+            daily -> firstDay.atStartOfDay(zone).toInstant().toEpochMilli()
+            range == ChartRange.Today -> start // midnight, a whole hour in every zone
+            else -> start - start % HOUR
+        }
         val bucketMillis = if (daily) DAY else HOUR
         fun index(t: Long): Int =
             if (daily) ChronoUnit.DAYS.between(firstDay, Instant.ofEpochMilli(t).atZone(zone).toLocalDate()).toInt()
-            else ((t - startMillis) / HOUR).toInt()
+            else Math.floorDiv(t - startMillis, HOUR).toInt() // earlier readings: negative, not bucket 0
     }
 
     /**
@@ -157,7 +169,7 @@ object ChartBuilder {
     }
 
     /**
-     * Burner running time: minutes per hour from the on/off snapshots (24 h), or hours per day
+     * Burner running time: minutes per hour from the on/off snapshots (Today, 24 h), or hours per day
      * from the lifetime hours counter (7 / 30 days, whole hours as the boiler counts them).
      */
     internal fun burner(range: ChartRange, active: List<HistoryRow>, hours: List<HistoryRow>, start: Long, zone: ZoneId): ChartData {

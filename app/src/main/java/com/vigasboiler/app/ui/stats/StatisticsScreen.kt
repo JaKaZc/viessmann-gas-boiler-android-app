@@ -13,6 +13,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -57,6 +58,7 @@ import com.vigasboiler.app.ui.common.AppCard
 import com.vigasboiler.app.ui.common.appear
 import androidx.compose.foundation.layout.Box
 import com.vigasboiler.app.ui.common.ColumnChart
+import com.vigasboiler.app.ui.common.labelAt
 import com.vigasboiler.app.ui.common.SectionHeader
 import com.vigasboiler.app.ui.common.StatusChip
 import com.vigasboiler.app.ui.theme.AppColors
@@ -284,7 +286,10 @@ private fun GasHistory(bars: GasBars) {
         if (data.isEmpty()) {
             Text(stringResource(R.string.stats_history_empty), style = MaterialTheme.typography.bodySmall)
         } else {
-            ColumnChart(data.map { it.value }, labels, Modifier.fillMaxWidth(), labelEvery = if (data.size > 12) data.size / 6 else 1)
+            // A new chart per tab: the old one would first redraw the previous tab's bars with the new labels.
+            key(tab) {
+                ColumnChart(data.map { it.value }, labels, Modifier.fillMaxWidth(), labelEvery = if (data.size > 12) data.size / 6 else 1)
+            }
         }
     }
 }
@@ -328,7 +333,7 @@ private fun OutsideSection(stats: OutsideStats?) {
                     days.mapIndexed { i, d -> i to d.avg },
                     days.mapIndexed { i, d -> i to d.min },
                 ),
-                xLabel = { x -> days.getOrNull(x.toInt())?.let { dateFormat.format(it.date) } ?: "" },
+                xLabel = { x -> labelAt(days.map { dateFormat.format(it.date) }, x) },
                 labelEvery = if (days.size > 10) days.size / 5 else 1,
             )
             Text(stringResource(R.string.stats_outside_legend), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

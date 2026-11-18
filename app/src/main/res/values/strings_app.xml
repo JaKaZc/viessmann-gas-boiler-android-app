@@ -290,6 +290,7 @@
     <string name="set_client_change_title">Change client ID?</string>
     <string name="set_client_change_text">You will be signed out and the setup wizard opens, so you can enter a different client ID and sign in again. Your history stays on this phone.</string>
     <!-- History -->
+    <string name="hist_today">Today</string>
     <string name="hist_24h">24 h</string>
     <string name="hist_7d">7 days</string>
     <string name="hist_30d">30 days</string>
@@ -324,6 +325,9 @@
     <string name="widget_updated">Updated %1$s · next in</string>
     <string name="widget_stale">Not updated since %1$s · next in</string>
     <string name="widget_refreshing">Refreshing…</string>
+    <string name="widget_no_connection">Updated %1$s · no connection</string>
+    <string name="widget_limited">Updated %1$s · API limit reached</string>
+    <string name="widget_refresh_failed">Updated %1$s · refresh failed</string>
     <string name="widget_refresh">Refresh</string>
 
     <!-- Statistics widget -->

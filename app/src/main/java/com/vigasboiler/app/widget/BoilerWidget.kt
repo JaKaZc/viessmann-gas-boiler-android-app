@@ -59,6 +59,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,9 +87,10 @@ interface WidgetEntryPoint {
     fun history(): HistoryRepository
 }
 
-/** True while a refresh started from the widget button runs. */
+/** The widget button's refresh: whether it runs, and why the last one brought no new data. */
 object WidgetRefresh {
     val running = MutableStateFlow(false)
+    val problem = MutableStateFlow<WidgetProblem?>(null)
 }
 
 /**
@@ -111,9 +113,10 @@ class BoilerWidget : GlanceAppWidget() {
             val auth by entry.tokenManager().state.collectAsState()
             val nextRun by remember { BackgroundRefresh.nextRun(context) }.collectAsState(null)
             val refreshing by WidgetRefresh.running.collectAsState()
+            val problem by WidgetRefresh.problem.collectAsState()
             val data = snapshot?.let { WidgetData.from(it, nextRun, interval, System.currentTimeMillis()) }
             LaunchedEffect(data?.nextRefreshMillis) { data?.let { WidgetAlarm.schedule(context, it.nextRefreshMillis + WidgetAlarm.GRACE_MILLIS) } }
-            Content(data, signedIn = auth == AuthState.SignedIn, refreshing = refreshing)
+            Content(data, signedIn = auth == AuthState.SignedIn, refreshing = refreshing, problem = problem)
         }
     }
 
@@ -182,15 +185,26 @@ object WidgetAlarm {
     )
 }
 
-/** Refresh button: one manual refresh; the snapshot listener redraws the widget on success. */
+/**
+ * Refresh button: one manual refresh; the snapshot listener redraws the widget on success. A tap
+ * can come before the phone has network again, right after it wakes up: the widget then says so
+ * and the refresh is repeated as soon as there is a connection.
+ */
 class RefreshWidgetAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         if (WidgetRefresh.running.value) return
         val entry = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
         WidgetRefresh.running.value = true
+        WidgetRefresh.problem.value = null
         BoilerWidget.redraw(context)
         try {
-            entry.repository().refresh(CallKind.Manual)
+            val problem = WidgetProblem.of(entry.repository().refresh(CallKind.Manual))
+            WidgetRefresh.problem.value = problem
+            if (problem == WidgetProblem.NoConnection) BackgroundRefresh.retryWhenOnline(context)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            WidgetRefresh.problem.value = WidgetProblem.Failed
         } finally {
             WidgetRefresh.running.value = false
             BoilerWidget.redraw(context)
@@ -199,7 +213,7 @@ class RefreshWidgetAction : ActionCallback {
 }
 
 @Composable
-private fun Content(data: WidgetData?, signedIn: Boolean, refreshing: Boolean) {
+private fun Content(data: WidgetData?, signedIn: Boolean, refreshing: Boolean, problem: WidgetProblem?) {
     val size = LocalSize.current
     Box(
         GlanceModifier.fillMaxSize()
@@ -212,8 +226,8 @@ private fun Content(data: WidgetData?, signedIn: Boolean, refreshing: Boolean) {
             !signedIn -> Message(R.string.widget_signed_out)
             data == null -> Message(R.string.widget_no_data)
             size.width < MEDIUM.width || size.height < MEDIUM.height -> Compact(data, refreshing)
-            size.height < LARGE.height -> Medium(data, refreshing)
-            else -> Hero(data, refreshing, tiles = size.height >= FULL.height)
+            size.height < LARGE.height -> Medium(data, refreshing, problem)
+            else -> Hero(data, refreshing, problem, tiles = size.height >= FULL.height)
         }
     }
 }
@@ -252,7 +266,7 @@ private fun Compact(d: WidgetData, refreshing: Boolean) {
 
 /** 4×2: the Overview card's headline (label, temperature, target) with the burner ring. */
 @Composable
-private fun Medium(d: WidgetData, refreshing: Boolean) {
+private fun Medium(d: WidgetData, refreshing: Boolean, problem: WidgetProblem?) {
     val context = LocalContext.current
     Column(GlanceModifier.fillMaxSize()) {
         Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -270,13 +284,13 @@ private fun Medium(d: WidgetData, refreshing: Boolean) {
             }
         }
         Spacer(GlanceModifier.defaultWeight())
-        Footer(d, refreshing)
+        Footer(d, refreshing, problem)
     }
 }
 
 /** About 4×3 and up: the Overview card itself, plus supply and pressure tiles when tall enough. */
 @Composable
-private fun Hero(d: WidgetData, refreshing: Boolean, tiles: Boolean) {
+private fun Hero(d: WidgetData, refreshing: Boolean, problem: WidgetProblem?, tiles: Boolean) {
     val context = LocalContext.current
     Column(GlanceModifier.fillMaxSize()) {
         Row(GlanceModifier.fillMaxWidth()) {
@@ -311,7 +325,7 @@ private fun Hero(d: WidgetData, refreshing: Boolean, tiles: Boolean) {
             }
         }
         Spacer(GlanceModifier.defaultWeight())
-        Footer(d, refreshing)
+        Footer(d, refreshing, problem)
     }
 }
 
@@ -382,18 +396,29 @@ private fun StatusChip(d: WidgetData) {
     }
 }
 
-/** When the data is from and when the background refresh comes next, plus the refresh button. */
+/**
+ * When the data is from and when the background refresh comes next, plus the refresh button. If
+ * the button's refresh brought nothing new, the reason takes the countdown's place.
+ */
 @Composable
-private fun Footer(d: WidgetData, refreshing: Boolean) {
+private fun Footer(d: WidgetData, refreshing: Boolean, problem: WidgetProblem?) {
     val context = LocalContext.current
     Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         val text = when {
             refreshing -> context.getString(R.string.widget_refreshing)
+            problem != null -> context.getString(
+                when (problem) {
+                    WidgetProblem.NoConnection -> R.string.widget_no_connection
+                    WidgetProblem.Limited -> R.string.widget_limited
+                    WidgetProblem.Failed -> R.string.widget_refresh_failed
+                },
+                formatTime(d.updatedAtMillis),
+            )
             d.stale -> context.getString(R.string.widget_stale, formatTime(d.updatedAtMillis))
             else -> context.getString(R.string.widget_updated, formatTime(d.updatedAtMillis))
         }
-        Label(text, 12.sp, if (d.stale && !refreshing) WidgetColors.warning else WidgetColors.onBgVariant)
-        if (!refreshing) {
+        Label(text, 12.sp, if ((d.stale || problem != null) && !refreshing) WidgetColors.warning else WidgetColors.onBgVariant)
+        if (!refreshing && problem == null) {
             Spacer(GlanceModifier.width(4.dp))
             Countdown(d.nextRefreshMillis)
         }

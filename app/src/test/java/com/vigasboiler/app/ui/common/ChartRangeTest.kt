@@ -16,4 +16,12 @@ class ChartRangeTest {
         assertRange(18.5, 21.0, niceRange(19.1, 20.7)) // room: 0.5° steps
         assertRange(-5.0, 25.0, niceRange(0.5, 21.0)) // room and outside together: 5° steps
     }
+
+    @Test
+    fun `a label is never blank, also for an x past the labels after the data changed`() {
+        val labels = listOf("W44", "W45")
+        assertEquals("W45", labelAt(labels, 1.0))
+        assertEquals("–", labelAt(labels, 30.0)) // the 31-day bars are still shown for a moment
+        assertEquals("–", labelAt(listOf(" "), 0.0))
+    }
 }

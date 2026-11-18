@@ -153,8 +153,15 @@ fun BarChart(
 /** Bars at x = 0, 1, 2 … labelled with [labels]; only every [labelEvery]th bar gets a label. */
 @Composable
 fun ColumnChart(values: List<Double>, labels: List<String>, modifier: Modifier = Modifier, labelEvery: Int = 1) {
-    BarChart(values.mapIndexed { i, v -> i to v }, MaterialTheme.colorScheme.primary, { x -> labels.getOrNull(x.toInt()) ?: "" }, modifier, labelEvery)
+    BarChart(values.mapIndexed { i, v -> i to v }, MaterialTheme.colorScheme.primary, { x -> labelAt(labels, x) }, modifier, labelEvery)
 }
+
+/**
+ * The label for x, never blank: Vico throws on a blank label. When the data changes, the chart
+ * still shows the old values for a moment while the labels already belong to the new ones, so x
+ * can be past the end of [labels].
+ */
+internal fun labelAt(labels: List<String>, x: Double): String = labels.getOrNull(x.toInt())?.takeIf { it.isNotBlank() } ?: "–"
 
 /** Several lines in the theme's colours (first primary, then tertiary, then outline). */
 @Composable

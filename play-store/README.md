@@ -127,6 +127,8 @@ Play-signed build).
   listings → Manage translations.
 - The app name and descriptions use "Viessmann", "Vitodens" and "ViCare" descriptively, with the
   disclaimer at the end of the full description; the icon and graphics use no Viessmann logo.
+- Releases so far: 1.0.0 (versionCode 1), 1.0.1 (2), 1.0.2 (3, the current `app-live-release.aab`).
+  Each has its notes in `listing/en-US/release-notes-<version>.txt`.
 - To build the next version: raise `versionCode` (and `versionName`) in `app/build.gradle.kts`,
   then run `./gradlew :app:bundleLiveRelease` and upload
   `app/build/outputs/bundle/liveRelease/app-live-release.aab`.

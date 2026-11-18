@@ -40,6 +40,7 @@ import com.vigasboiler.app.ratelimit.DataStoreBlockStore
 import com.vigasboiler.app.ratelimit.RateLimitTracker
 import com.vigasboiler.app.settings.SettingsRepository
 import com.vigasboiler.app.widget.BoilerWidget
+import com.vigasboiler.app.widget.WidgetRefresh
 import com.vigasboiler.app.work.Notifier
 
 /** Bindings shared by both flavors. The API OkHttpClient and TokenManager come from FlavorModule. */
@@ -182,7 +183,10 @@ object HistoryModule {
     /** Home-screen widgets show every new snapshot, from the app or the background refresh. */
     @Provides @IntoSet
     fun widgetListener(@ApplicationContext context: Context): SnapshotListener =
-        SnapshotListener { _, _ -> BoilerWidget.redraw(context) }
+        SnapshotListener { _, _ ->
+            WidgetRefresh.problem.value = null
+            BoilerWidget.redraw(context)
+        }
 }
 
 @Module

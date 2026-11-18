@@ -1,0 +1,5 @@
+<en-US>
+• Statistics: new "Today" range, from midnight until now
+• Widget: tapping refresh without internet now says so and refreshes once the phone is back online
+• Fixed a crash when switching Gas use history to week, month or year
+</en-US>

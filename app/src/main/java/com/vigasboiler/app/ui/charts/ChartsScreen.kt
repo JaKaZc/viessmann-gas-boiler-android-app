@@ -144,7 +144,7 @@ fun ChartDetailScreen(kind: ChartKind, initialRange: ChartRange, vm: ChartsViewM
 
 @Composable
 private fun RangeSelector(range: ChartRange, onSelect: (ChartRange) -> Unit) {
-    val labels = mapOf(ChartRange.Day to R.string.hist_24h, ChartRange.Week to R.string.hist_7d, ChartRange.Month to R.string.hist_30d)
+    val labels = mapOf(ChartRange.Today to R.string.hist_today, ChartRange.Day to R.string.hist_24h, ChartRange.Week to R.string.hist_7d, ChartRange.Month to R.string.hist_30d)
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
         ChartRange.entries.forEachIndexed { i, r ->
             SegmentedButton(selected = r == range, onClick = { onSelect(r) }, shape = SegmentedButtonDefaults.itemShape(i, ChartRange.entries.size)) {
@@ -179,16 +179,15 @@ private fun ChartHeader(chart: ChartData, range: ChartRange) {
 @Composable
 private fun ChartBody(chart: ChartData, range: ChartRange, height: Int) {
     val zone = ZoneId.systemDefault()
-    val hourly = chart.bucketMillis < 24 * 3_600_000L && range == ChartRange.Day
-    val pattern = DateTimeFormatter.ofPattern(if (hourly) "HH:mm" else "d.M.")
+    val pattern = DateTimeFormatter.ofPattern(if (range.daily) "d.M." else "HH:mm")
     val label = { x: Double -> pattern.format(Instant.ofEpochMilli(chart.startMillis + (x * chart.bucketMillis).toLong()).atZone(zone)) }
     val decimals = decimalsOf(chart.kind)
     if (chart.kind.columns) {
         val series = chart.series.first()
-        val labelEvery = when (range) { ChartRange.Day -> 4; ChartRange.Week -> 1; ChartRange.Month -> 5 }
+        val labelEvery = when (range) { ChartRange.Today, ChartRange.Day -> 4; ChartRange.Week -> 1; ChartRange.Month -> 5 }
         BarChart(series.points, color(series.role), label, labelEvery = labelEvery, height = height.dp, decimals = decimals)
     } else {
-        val labelEvery = when (range) { ChartRange.Day -> 8; ChartRange.Week -> 12; ChartRange.Month -> 20 }
+        val labelEvery = when (range) { ChartRange.Today, ChartRange.Day -> 8; ChartRange.Week -> 12; ChartRange.Month -> 20 }
         TimeLineChart(chart.series.map { lineSpec(it.role, it.points) }, label, labelEvery = labelEvery, height = height.dp, decimals = decimals)
     }
 }
@@ -240,8 +239,8 @@ private fun seriesLabel(role: SeriesRole, range: ChartRange) = when (role) {
     SeriesRole.Setpoint -> R.string.series_setpoint
     SeriesRole.Modulation -> R.string.series_modulation
     SeriesRole.Pressure -> R.string.series_pressure
-    SeriesRole.Gas -> if (range == ChartRange.Day) R.string.series_gas_hour else R.string.series_gas_day
-    SeriesRole.BurnerTime -> if (range == ChartRange.Day) R.string.series_burner_hour else R.string.series_burner_day
+    SeriesRole.Gas -> if (range.daily) R.string.series_gas_day else R.string.series_gas_hour
+    SeriesRole.BurnerTime -> if (range.daily) R.string.series_burner_day else R.string.series_burner_hour
 }
 
 @StringRes
@@ -289,9 +288,9 @@ private fun decimalsOf(kind: ChartKind) = when (kind) {
     else -> 1
 }
 
-/** Burner time is minutes per hour for 24 h and hours per day for longer ranges. */
+/** Burner time is minutes per hour for Today and 24 h, and hours per day for longer ranges. */
 private fun formatValue(kind: ChartKind, value: Double, range: ChartRange): String = when {
-    kind == ChartKind.Burner && range == ChartRange.Day -> formatNumber(value, 0) + " min"
+    kind == ChartKind.Burner && !range.daily -> formatNumber(value, 0) + " min"
     kind == ChartKind.Burner -> formatNumber(value, 1) + " h"
     else -> formatNumber(value, decimalsOf(kind)) + unitOf(kind)
 }

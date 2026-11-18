@@ -1,0 +1,6 @@
+<en-US>
+• Weekly schedule: drag the dots on the 24-hour dial to change times, drag a period to move it
+• History and settings return after a reinstall or on a new phone
+• Demo mode with sample data, no account needed
+• New periods now start in free time
+</en-US>

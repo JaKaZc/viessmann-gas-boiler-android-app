@@ -18,7 +18,7 @@ It uses the official Viessmann API with your own free developer access, so your 
 ★ CHARTS AND STATISTICS
 • Room vs target vs outside, supply vs setpoint, modulation and pressure
 • Gas use per hour and per day, burner running time and starts
-• 24 hours, 7 days or 30 days, with tap-to-read values
+• Today, 24 hours, 7 days or 30 days, with tap-to-read values
 • Gas, electricity and heat counters with month and year comparison, efficiency
 • Export your history as CSV
 

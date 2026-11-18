@@ -3,9 +3,25 @@ package com.vigasboiler.app.widget
 import com.vigasboiler.app.feature.DeviceMessages
 import com.vigasboiler.app.feature.FeatureSnapshot
 import com.vigasboiler.app.feature.MessageLevel
+import com.vigasboiler.app.feature.RefreshOutcome
 import com.vigasboiler.app.feature.gatewayStatus
 
 /** Everything the home-screen widget shows, taken from the last snapshot. */
+/** Why a refresh from the widget brought no new data. */
+enum class WidgetProblem {
+    NoConnection, Limited, Failed;
+
+    companion object {
+        /** Null when there is nothing to tell. No HTTP status: the request never reached the API. */
+        fun of(outcome: RefreshOutcome): WidgetProblem? = when (outcome) {
+            is RefreshOutcome.Success, is RefreshOutcome.TooSoon -> null
+            is RefreshOutcome.NotAllowed -> Limited
+            is RefreshOutcome.Failed -> if (outcome.httpCode == null) NoConnection else Failed
+            RefreshOutcome.NoDevice -> Failed
+        }
+    }
+}
+
 data class WidgetData(
     val room: Double?,
     val target: Double?,

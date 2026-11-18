@@ -84,7 +84,8 @@ object DemoHistory {
 
     /**
      * The daily gas counter: grows with modulation and restarts at midnight. Today's part is
-     * scaled to stay below the snapshot's value so the counter never runs backwards.
+     * scaled to just below the snapshot's value, so the counter neither runs backwards nor jumps
+     * in the last hour.
      */
     private fun gasToday(steps: List<Step>, todayEnd: Double?, endMillis: Long, zone: ZoneId): DoubleArray {
         val gas = DoubleArray(steps.size)
@@ -98,7 +99,7 @@ object DemoHistory {
         val today = Instant.ofEpochMilli(endMillis).atZone(zone).toLocalDate()
         val todayMax = steps.indices.filter { steps[it].day == today }.maxOfOrNull { gas[it] } ?: return gas.round()
         if (todayEnd != null && todayMax > 0) {
-            val scale = minOf(1.0, todayEnd * 0.95 / todayMax)
+            val scale = todayEnd * 0.95 / todayMax
             steps.indices.filter { steps[it].day == today }.forEach { gas[it] *= scale }
         }
         return gas.round()

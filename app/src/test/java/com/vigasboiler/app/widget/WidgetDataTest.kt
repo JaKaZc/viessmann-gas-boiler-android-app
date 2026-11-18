@@ -8,6 +8,9 @@ import org.junit.Test
 import com.vigasboiler.app.feature.FeatureParser
 import com.vigasboiler.app.feature.FeatureSnapshot
 import com.vigasboiler.app.feature.Fixtures
+import com.vigasboiler.app.feature.RefreshOutcome
+import com.vigasboiler.app.ratelimit.CallPermission
+import com.vigasboiler.app.ratelimit.RateBudget
 
 class WidgetDataTest {
 
@@ -18,6 +21,16 @@ class WidgetDataTest {
         FeatureParser.parse(Fixtures.read("06_gateway_features_i0_g0.json")),
         fetched,
     )
+
+    @Test
+    fun `a refresh that brought nothing new tells why, the rest is silent`() {
+        assertEquals(WidgetProblem.NoConnection, WidgetProblem.of(RefreshOutcome.Failed("Unable to resolve host")))
+        assertEquals(WidgetProblem.Failed, WidgetProblem.of(RefreshOutcome.Failed("Server error", 500)))
+        assertEquals(WidgetProblem.Failed, WidgetProblem.of(RefreshOutcome.NoDevice))
+        assertEquals(WidgetProblem.Limited, WidgetProblem.of(RefreshOutcome.NotAllowed(CallPermission.WouldExceed(RateBudget(119, 100, null)))))
+        assertNull(WidgetProblem.of(RefreshOutcome.Success(snapshot)))
+        assertNull(WidgetProblem.of(RefreshOutcome.TooSoon(1000)))
+    }
 
     @Test
     fun `values come from the snapshot`() {

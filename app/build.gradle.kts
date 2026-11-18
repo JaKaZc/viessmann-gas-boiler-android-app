@@ -29,8 +29,8 @@ android {
         applicationId = "com.vigasboiler.app"
         minSdk = 28
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 3
+        versionName = "1.0.2"
 
         manifestPlaceholders["appAuthRedirectScheme"] = "com.vigasboiler.app"
         buildConfigField("String", "REDIRECT_URI", "\"${redirectUri("com.vigasboiler.app")}\"")

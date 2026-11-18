@@ -63,6 +63,49 @@ class ChartBuilderTest {
     }
 
     @Test
+    fun `today starts at local midnight, whatever the time`() {
+        assertEquals(at(day, 0), ChartRange.Today.startMillis(at(day, 0, 5), zone))
+        assertEquals(at(day, 0), ChartRange.Today.startMillis(at(day, 23, 59), zone))
+        val india = ZoneId.of("Asia/Kolkata")
+        val midnight = ZonedDateTime.of(day.atStartOfDay(), india).toInstant().toEpochMilli()
+        assertEquals(midnight, ChartRange.Today.startMillis(midnight + 3_600_000L, india))
+    }
+
+    @Test
+    fun `today leaves out yesterday, which 24 h still shows`() {
+        val now = at(day, 8)
+        val outside = listOf(row(Source.Outside, at(day.minusDays(1), 22), 1.0), row(Source.Outside, at(day, 2), 3.0), row(Source.Outside, at(day, 7), 5.0))
+        val data = mapOf(Source.Outside to outside)
+        val today = ChartBuilder.build(ChartRange.Today, now, data, zone)[ChartKind.Temperatures]!!
+        assertEquals(at(day, 0), today.startMillis)
+        assertEquals(listOf(3.0, 5.0), today.series.single().points.map { it.second })
+        assertEquals(3.0, today.stats!!.min, 1e-9)
+        assertEquals(3, ChartBuilder.build(ChartRange.Day, now, data, zone)[ChartKind.Temperatures]!!.series.single().points.size)
+    }
+
+    @Test
+    fun `gas today counts from midnight, what was used before it stays out`() {
+        val now = at(day, 3)
+        val rows = listOf(
+            row(Source.GasToday, at(day.minusDays(1), 23), 4.0),
+            row(Source.GasToday, at(day.minusDays(1), 23, 30), 4.5), // 0.5 m³ yesterday, just before the range
+            row(Source.GasToday, at(day, 0, 30), 0.3), // reset at midnight: 0.3 belongs to today
+            row(Source.GasToday, at(day, 2, 30), 0.9),
+        )
+        val chart = ChartBuilder.build(ChartRange.Today, now, mapOf(Source.GasToday to rows), zone)[ChartKind.Gas]!!
+        assertEquals(mapOf(0 to 0.3, 2 to 0.6), chart.series.single().points.toMap().mapValues { Math.round(it.value * 10) / 10.0 })
+        assertEquals(0.9, chart.stats!!.total!!, 1e-9)
+    }
+
+    @Test
+    fun `burner today is minutes per hour from midnight`() {
+        val now = at(day, 3)
+        val active = listOf(0, 20, 40).map { m -> row(Source.BurnerActive, at(day, 1, m), if (m == 0) 1.0 else 0.0) } + row(Source.BurnerActive, at(day.minusDays(1), 23), 1.0)
+        val chart = ChartBuilder.build(ChartRange.Today, now, mapOf(Source.BurnerActive to active), zone)[ChartKind.Burner]!!
+        assertEquals(listOf(1 to 20.0), chart.series.single().points)
+    }
+
+    @Test
     fun `the target follows the active program`() {
         val t1 = at(day, 6); val t2 = at(day, 22)
         val data = mapOf(
